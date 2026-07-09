@@ -1,6 +1,6 @@
 import React from 'react';
 import { Instructor } from '../types';
-import { Award, ShieldAlert, Star, Compass, User } from 'lucide-react';
+import { Award, Star, User } from 'lucide-react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -8,7 +8,7 @@ interface InstructorsSectionProps {
   instructors: Instructor[];
 }
 
-export default function InstructorsSection({ instructors }: InstructorsSectionProps) {
+export default React.memo(function InstructorsSection({ instructors }: InstructorsSectionProps) {
   const { lang } = useThemeLang();
 
   return (
@@ -55,6 +55,9 @@ export default function InstructorsSection({ instructors }: InstructorsSectionPr
                     alt={inst.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    width={400}
+                    height={400}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-marine-950/80 via-marine-950/20 to-transparent" />
                   
@@ -103,4 +106,4 @@ export default function InstructorsSection({ instructors }: InstructorsSectionPr
       </div>
     </section>
   );
-}
+});

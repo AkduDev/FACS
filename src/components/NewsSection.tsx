@@ -9,7 +9,7 @@ interface NewsSectionProps {
   news: NewsItem[];
 }
 
-export default function NewsSection({ news }: NewsSectionProps) {
+export default React.memo(function NewsSection({ news }: NewsSectionProps) {
   const [activeArticle, setActiveArticle] = useState<NewsItem | null>(null);
   const { lang, t } = useThemeLang();
 
@@ -95,6 +95,9 @@ export default function NewsSection({ news }: NewsSectionProps) {
                       alt={item.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      width={640}
+                      height={360}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-marine-950/60 to-transparent" />
                   </div>
@@ -233,4 +236,4 @@ export default function NewsSection({ news }: NewsSectionProps) {
       </div>
     </section>
   );
-}
+});

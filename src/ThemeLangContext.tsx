@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { translations, TranslationDict } from './translations';
 
 interface ThemeLangContextType {
@@ -41,8 +41,13 @@ export function ThemeLangProvider({ children }: { children: React.ReactNode }) {
 
   const t = translations[lang];
 
+  const value = useMemo(
+    () => ({ theme, toggleTheme, lang, setLang, t }),
+    [theme, toggleTheme, lang, setLang, t]
+  );
+
   return (
-    <ThemeLangContext.Provider value={{ theme, toggleTheme, lang, setLang, t }}>
+    <ThemeLangContext.Provider value={value}>
       {children}
     </ThemeLangContext.Provider>
   );

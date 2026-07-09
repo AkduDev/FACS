@@ -8,12 +8,6 @@ import {
 
 const router = Router();
 
-/**
- * POST /api/uploads/image
- * Sube una imagen individual
- * Requiere autenticación JWT
- * Body: multipart/form-data con campo "image"
- */
 router.post(
   "/image",
   authMiddleware,
@@ -21,12 +15,6 @@ router.post(
   uploadController.uploadImage
 );
 
-/**
- * POST /api/uploads/images
- * Sube múltiples imágenes (máximo 5)
- * Requiere autenticación JWT
- * Body: multipart/form-data con campo "images"
- */
 router.post(
   "/images",
   authMiddleware,
@@ -34,23 +22,15 @@ router.post(
   uploadController.uploadImages
 );
 
-/**
- * DELETE /api/uploads/:filename
- * Elimina un archivo por su nombre
- * Requiere autenticación JWT
- */
 router.delete(
   "/:filename",
   authMiddleware,
   uploadController.deleteFile
 );
 
-/**
- * GET /api/uploads/check/:filename
- * Verifica si un archivo existe (público)
- */
 router.get(
   "/check/:filename",
+  authMiddleware,
   uploadController.checkFile
 );
 

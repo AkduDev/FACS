@@ -7,7 +7,7 @@ interface GraduatesSectionProps {
   graduates: Graduate[];
 }
 
-export default function GraduatesSection({ graduates }: GraduatesSectionProps) {
+export default React.memo(function GraduatesSection({ graduates }: GraduatesSectionProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const { lang, t } = useThemeLang();
@@ -283,4 +283,4 @@ export default function GraduatesSection({ graduates }: GraduatesSectionProps) {
       </div>
     </section>
   );
-}
+});

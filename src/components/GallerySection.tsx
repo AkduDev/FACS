@@ -9,7 +9,7 @@ interface GallerySectionProps {
   items: GalleryItem[];
 }
 
-export default function GallerySection({ items }: GallerySectionProps) {
+export default React.memo(function GallerySection({ items }: GallerySectionProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
   const [activePhoto, setActivePhoto] = useState<number | null>(null);
   const { lang } = useThemeLang();
@@ -270,4 +270,4 @@ export default function GallerySection({ items }: GallerySectionProps) {
       </div>
     </section>
   );
-}
+});

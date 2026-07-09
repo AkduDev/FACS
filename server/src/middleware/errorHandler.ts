@@ -21,13 +21,15 @@ export function errorHandler(
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
 
-  console.error(`[Error] ${statusCode}: ${message}`);
-  if (statusCode === 500) {
+  if (statusCode >= 500) {
+    console.error(`[Error] ${statusCode}: ${message}`);
     console.error(err.stack);
   }
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.status(statusCode).json({
     error: message,
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+    ...(!isProduction && { stack: err.stack }),
   });
 }

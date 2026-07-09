@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import LandingPage from './components/LandingPage';
-import AdminDashboard from './components/AdminDashboard';
 import { GalleryItem, NewsItem, EventItem, Instructor, Graduate } from './types';
 import { api } from './api';
+
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
+
+function SectionSkeleton() {
+  return (
+    <div className="py-24 bg-marine-950 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 export default function App() {
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
@@ -19,18 +28,18 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [galleryData, newsData, eventsData, instructorsData, graduatesData] = await Promise.all([
+        const results = await Promise.allSettled([
           api.gallery.getAll(),
           api.news.getAll(),
           api.events.getAll(),
           api.instructors.getAll(),
           api.graduates.getAll(),
         ]);
-        setGalleryState(galleryData);
-        setNewsState(newsData);
-        setEventsState(eventsData);
-        setInstructorsState(instructorsData);
-        setGraduatesState(graduatesData);
+        if (results[0].status === "fulfilled") setGalleryState(results[0].value);
+        if (results[1].status === "fulfilled") setNewsState(results[1].value);
+        if (results[2].status === "fulfilled") setEventsState(results[2].value);
+        if (results[3].status === "fulfilled") setInstructorsState(results[3].value);
+        if (results[4].status === "fulfilled") setGraduatesState(results[4].value);
       } catch (err) {
         console.error("Error fetching data from API:", err);
       } finally {
@@ -40,77 +49,57 @@ export default function App() {
     fetchData();
   }, []);
 
-  const syncGallery = async (action: 'add' | 'update' | 'delete', item?: GalleryItem, id?: string) => {
+  const syncGallery = useCallback(async (action: 'add' | 'update' | 'delete', item?: GalleryItem, id?: string) => {
     try {
-      if (action === 'add' && item) {
-        await api.gallery.create(item);
-      } else if (action === 'update' && item) {
-        await api.gallery.update(item.id, item);
-      } else if (action === 'delete' && id) {
-        await api.gallery.delete(id);
-      }
+      if (action === 'add' && item) await api.gallery.create(item);
+      else if (action === 'update' && item) await api.gallery.update(item.id, item);
+      else if (action === 'delete' && id) await api.gallery.delete(id);
     } catch (err) {
       console.error("Gallery sync error:", err);
     }
-  };
+  }, []);
 
-  const syncNews = async (action: 'add' | 'update' | 'delete', item?: NewsItem, id?: string) => {
+  const syncNews = useCallback(async (action: 'add' | 'update' | 'delete', item?: NewsItem, id?: string) => {
     try {
-      if (action === 'add' && item) {
-        await api.news.create(item);
-      } else if (action === 'update' && item) {
-        await api.news.update(item.id, item);
-      } else if (action === 'delete' && id) {
-        await api.news.delete(id);
-      }
+      if (action === 'add' && item) await api.news.create(item);
+      else if (action === 'update' && item) await api.news.update(item.id, item);
+      else if (action === 'delete' && id) await api.news.delete(id);
     } catch (err) {
       console.error("News sync error:", err);
     }
-  };
+  }, []);
 
-  const syncEvents = async (action: 'add' | 'update' | 'delete', item?: EventItem, id?: string) => {
+  const syncEvents = useCallback(async (action: 'add' | 'update' | 'delete', item?: EventItem, id?: string) => {
     try {
-      if (action === 'add' && item) {
-        await api.events.create(item);
-      } else if (action === 'update' && item) {
-        await api.events.update(item.id, item);
-      } else if (action === 'delete' && id) {
-        await api.events.delete(id);
-      }
+      if (action === 'add' && item) await api.events.create(item);
+      else if (action === 'update' && item) await api.events.update(item.id, item);
+      else if (action === 'delete' && id) await api.events.delete(id);
     } catch (err) {
       console.error("Events sync error:", err);
     }
-  };
+  }, []);
 
-  const syncInstructors = async (action: 'add' | 'update' | 'delete', item?: Instructor, id?: string) => {
+  const syncInstructors = useCallback(async (action: 'add' | 'update' | 'delete', item?: Instructor, id?: string) => {
     try {
-      if (action === 'add' && item) {
-        await api.instructors.create(item);
-      } else if (action === 'update' && item) {
-        await api.instructors.update(item.id, item);
-      } else if (action === 'delete' && id) {
-        await api.instructors.delete(id);
-      }
+      if (action === 'add' && item) await api.instructors.create(item);
+      else if (action === 'update' && item) await api.instructors.update(item.id, item);
+      else if (action === 'delete' && id) await api.instructors.delete(id);
     } catch (err) {
       console.error("Instructors sync error:", err);
     }
-  };
+  }, []);
 
-  const syncGraduates = async (action: 'add' | 'update' | 'delete', item?: Graduate, id?: string) => {
+  const syncGraduates = useCallback(async (action: 'add' | 'update' | 'delete', item?: Graduate, id?: string) => {
     try {
-      if (action === 'add' && item) {
-        await api.graduates.create(item);
-      } else if (action === 'update' && item) {
-        await api.graduates.update(item.id, item);
-      } else if (action === 'delete' && id) {
-        await api.graduates.delete(id);
-      }
+      if (action === 'add' && item) await api.graduates.create(item);
+      else if (action === 'update' && item) await api.graduates.update(item.id, item);
+      else if (action === 'delete' && id) await api.graduates.delete(id);
     } catch (err) {
       console.error("Graduates sync error:", err);
     }
-  };
+  }, []);
 
-  const setGallery: React.Dispatch<React.SetStateAction<GalleryItem[]>> = (value) => {
+  const setGallery: React.Dispatch<React.SetStateAction<GalleryItem[]>> = useCallback((value) => {
     setGalleryState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -128,9 +117,9 @@ export default function App() {
       }
       return next;
     });
-  };
+  }, [syncGallery]);
 
-  const setNews: React.Dispatch<React.SetStateAction<NewsItem[]>> = (value) => {
+  const setNews: React.Dispatch<React.SetStateAction<NewsItem[]>> = useCallback((value) => {
     setNewsState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -148,9 +137,9 @@ export default function App() {
       }
       return next;
     });
-  };
+  }, [syncNews]);
 
-  const setEvents: React.Dispatch<React.SetStateAction<EventItem[]>> = (value) => {
+  const setEvents: React.Dispatch<React.SetStateAction<EventItem[]>> = useCallback((value) => {
     setEventsState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -168,9 +157,9 @@ export default function App() {
       }
       return next;
     });
-  };
+  }, [syncEvents]);
 
-  const setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>> = (value) => {
+  const setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>> = useCallback((value) => {
     setInstructorsState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -188,9 +177,9 @@ export default function App() {
       }
       return next;
     });
-  };
+  }, [syncInstructors]);
 
-  const setGraduates: React.Dispatch<React.SetStateAction<Graduate[]>> = (value) => {
+  const setGraduates: React.Dispatch<React.SetStateAction<Graduate[]>> = useCallback((value) => {
     setGraduatesState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -208,9 +197,9 @@ export default function App() {
       }
       return next;
     });
-  };
+  }, [syncGraduates]);
 
-  const handleLogin = async (password: string): Promise<boolean> => {
+  const handleLogin = useCallback(async (password: string): Promise<boolean> => {
     try {
       await api.auth.login('admin', password);
       setIsLoggedIn(true);
@@ -218,13 +207,13 @@ export default function App() {
     } catch {
       return false;
     }
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     api.auth.logout();
     setIsLoggedIn(false);
     setIsAdminMode(false);
-  };
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -253,21 +242,23 @@ export default function App() {
       />
       <main>
         {isAdminMode ? (
-          <AdminDashboard
-            isLoggedIn={isLoggedIn}
-            onLogin={handleLogin}
-            onLogout={handleLogout}
-            gallery={gallery}
-            setGallery={setGallery}
-            news={news}
-            setNews={setNews}
-            events={events}
-            setEvents={setEvents}
-            instructors={instructors}
-            setInstructors={setInstructors}
-            graduates={graduates}
-            setGraduates={setGraduates}
-          />
+          <Suspense fallback={<SectionSkeleton />}>
+            <AdminDashboard
+              isLoggedIn={isLoggedIn}
+              onLogin={handleLogin}
+              onLogout={handleLogout}
+              gallery={gallery}
+              setGallery={setGallery}
+              news={news}
+              setNews={setNews}
+              events={events}
+              setEvents={setEvents}
+              instructors={instructors}
+              setInstructors={setInstructors}
+              graduates={graduates}
+              setGraduates={setGraduates}
+            />
+          </Suspense>
         ) : (
           <LandingPage
             gallery={gallery}

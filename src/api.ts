@@ -61,6 +61,28 @@ export interface LoginResponse {
   user: { id: string; username: string };
 }
 
+async function createWithFile<T>(url: string, data: any, file: File): Promise<T> {
+  const formData = new FormData();
+  formData.append('image', file);
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      formData.append(key, String(value));
+    }
+  });
+  return requestFormData<T>(url, 'POST', formData);
+}
+
+async function updateWithFile<T>(url: string, data: any, file: File): Promise<T> {
+  const formData = new FormData();
+  formData.append('image', file);
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      formData.append(key, String(value));
+    }
+  });
+  return requestFormData<T>(url, 'PUT', formData);
+}
+
 export const api = {
   auth: {
     async login(username: string, password: string): Promise<LoginResponse> {
@@ -80,135 +102,47 @@ export const api = {
   },
 
   gallery: {
-    getAll: () => request<any[]>('/gallery'),
+    getAll: () => request<{ data: any[]; pagination: any }>('/gallery').then(r => r.data),
     getById: (id: string) => request<any>(`/gallery/${id}`),
-    create: (data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>('/gallery', 'POST', formData);
-      }
-      return request<any>('/gallery', { method: 'POST', body: JSON.stringify(data) });
-    },
-    update: (id: string, data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>(`/gallery/${id}`, 'PUT', formData);
-      }
-      return request<any>(`/gallery/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-    },
+    create: (data: any, file?: File) =>
+      file ? createWithFile<any>('/gallery', data, file) : request<any>('/gallery', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any, file?: File) =>
+      file ? updateWithFile<any>(`/gallery/${id}`, data, file) : request<any>(`/gallery/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request<any>(`/gallery/${id}`, { method: 'DELETE' }),
   },
 
   news: {
-    getAll: () => request<any[]>('/news'),
+    getAll: () => request<{ data: any[]; pagination: any }>('/news').then(r => r.data),
     getById: (id: string) => request<any>(`/news/${id}`),
-    create: (data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>('/news', 'POST', formData);
-      }
-      return request<any>('/news', { method: 'POST', body: JSON.stringify(data) });
-    },
-    update: (id: string, data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>(`/news/${id}`, 'PUT', formData);
-      }
-      return request<any>(`/news/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-    },
+    create: (data: any, file?: File) =>
+      file ? createWithFile<any>('/news', data, file) : request<any>('/news', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any, file?: File) =>
+      file ? updateWithFile<any>(`/news/${id}`, data, file) : request<any>(`/news/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request<any>(`/news/${id}`, { method: 'DELETE' }),
   },
 
   events: {
-    getAll: () => request<any[]>('/events'),
+    getAll: () => request<{ data: any[]; pagination: any }>('/events').then(r => r.data),
     getById: (id: string) => request<any>(`/events/${id}`),
-    create: (data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>('/events', 'POST', formData);
-      }
-      return request<any>('/events', { method: 'POST', body: JSON.stringify(data) });
-    },
-    update: (id: string, data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>(`/events/${id}`, 'PUT', formData);
-      }
-      return request<any>(`/events/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-    },
+    create: (data: any, file?: File) =>
+      file ? createWithFile<any>('/events', data, file) : request<any>('/events', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any, file?: File) =>
+      file ? updateWithFile<any>(`/events/${id}`, data, file) : request<any>(`/events/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request<any>(`/events/${id}`, { method: 'DELETE' }),
   },
 
   instructors: {
-    getAll: () => request<any[]>('/instructors'),
+    getAll: () => request<{ data: any[]; pagination: any }>('/instructors').then(r => r.data),
     getById: (id: string) => request<any>(`/instructors/${id}`),
-    create: (data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>('/instructors', 'POST', formData);
-      }
-      return request<any>('/instructors', { method: 'POST', body: JSON.stringify(data) });
-    },
-    update: (id: string, data: any, file?: File) => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-        return requestFormData<any>(`/instructors/${id}`, 'PUT', formData);
-      }
-      return request<any>(`/instructors/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-    },
+    create: (data: any, file?: File) =>
+      file ? createWithFile<any>('/instructors', data, file) : request<any>('/instructors', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any, file?: File) =>
+      file ? updateWithFile<any>(`/instructors/${id}`, data, file) : request<any>(`/instructors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request<any>(`/instructors/${id}`, { method: 'DELETE' }),
   },
 
   graduates: {
-    getAll: () => request<any[]>('/graduates'),
+    getAll: () => request<{ data: any[]; pagination: any }>('/graduates').then(r => r.data),
     getById: (id: string) => request<any>(`/graduates/${id}`),
     search: (q: string) => request<any[]>(`/graduates/search?q=${encodeURIComponent(q)}`),
     verify: (code: string) => request<any>(`/graduates/verify/${encodeURIComponent(code)}`),

@@ -1,11 +1,24 @@
 import { Request, Response, NextFunction } from "express";
+import path from "path";
 import { uploadService } from "../services/upload.service.js";
 import { createError } from "../middleware/errorHandler.js";
 
-/**
- * POST /api/uploads/image
- * Sube una imagen individual
- */
+function sanitizeFilename(filename: string): string {
+  const basename = path.basename(filename);
+  if (basename !== filename || basename === ".." || basename === ".") {
+    throw createError("Invalid filename", 400);
+  }
+  if (/[<>:"|?*]/.test(basename) || basename.includes("..")) {
+    throw createError("Invalid filename characters", 400);
+  }
+  return basename;
+}
+
+function getUploadPath(filename: string): string {
+  const safeName = sanitizeFilename(filename);
+  return path.join(process.cwd(), "uploads", safeName);
+}
+
 export async function uploadImage(
   req: Request,
   res: Response,
@@ -13,14 +26,14 @@ export async function uploadImage(
 ) {
   try {
     if (!req.file) {
-      throw createError("No se proporcionó ningún archivo", 400);
+      throw createError("No file provided", 400);
     }
 
     const result = await uploadService.processUploadedFile(req.file);
 
     res.status(201).json({
       success: true,
-      message: "Imagen subida correctamente",
+      message: "Image uploaded successfully",
       file: {
         url: result.url,
         filename: result.filename,
@@ -34,10 +47,6 @@ export async function uploadImage(
   }
 }
 
-/**
- * POST /api/uploads/images
- * Sube múltiples imágenes
- */
 export async function uploadImages(
   req: Request,
   res: Response,
@@ -45,7 +54,7 @@ export async function uploadImages(
 ) {
   try {
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-      throw createError("No se proporcionaron archivos", 400);
+      throw createError("No files provided", 400);
     }
 
     const files = req.files as Express.Multer.File[];
@@ -53,7 +62,7 @@ export async function uploadImages(
 
     res.status(201).json({
       success: true,
-      message: `${results.length} imagen(es) subida(s) correctamente`,
+      message: `${results.length} image(s) uploaded successfully`,
       files: results.map((r) => ({
         url: r.url,
         filename: r.filename,
@@ -67,10 +76,6 @@ export async function uploadImages(
   }
 }
 
-/**
- * DELETE /api/uploads/:filename
- * Elimina un archivo por su nombre
- */
 export async function deleteFile(
   req: Request,
   res: Response,
@@ -78,39 +83,29 @@ export async function deleteFile(
 ) {
   try {
     const { filename } = req.params;
-
     if (!filename) {
-      throw createError("Se requiere el nombre del archivo", 400);
+      throw createError("Filename is required", 400);
     }
 
-    // Buscar el archivo en ambos directorios
-    const imagesPath = `${process.cwd()}/uploads/images/${filename}`;
-    const documentsPath = `${process.cwd()}/uploads/documents/${filename}`;
+    const filePath = getUploadPath(filename);
+    const exists = await uploadService.fileExists(filePath);
 
-    const imagesExist = await uploadService.fileExists(imagesPath);
-    const documentsExist = await uploadService.fileExists(documentsPath);
-
-    if (!imagesExist && !documentsExist) {
-      throw createError("Archivo no encontrado", 404);
+    if (!exists) {
+      throw createError("File not found", 404);
     }
 
-    const filePath = imagesExist ? imagesPath : documentsPath;
     await uploadService.deleteFile(filePath);
 
     res.json({
       success: true,
-      message: "Archivo eliminado correctamente",
-      filename,
+      message: "File deleted successfully",
+      filename: sanitizeFilename(filename),
     });
   } catch (error) {
     next(error);
   }
 }
 
-/**
- * GET /api/uploads/check/:filename
- * Verifica si un archivo existe
- */
 export async function checkFile(
   req: Request,
   res: Response,
@@ -118,15 +113,12 @@ export async function checkFile(
 ) {
   try {
     const { filename } = req.params;
+    if (!filename) {
+      throw createError("Filename is required", 400);
+    }
 
-    const imagesPath = `${process.cwd()}/uploads/images/${filename}`;
-    const documentsPath = `${process.cwd()}/uploads/documents/${filename}`;
-
-    const imagesExist = await uploadService.fileExists(imagesPath);
-    const documentsExist = await uploadService.fileExists(documentsPath);
-
-    const exists = imagesExist || documentsExist;
-    const filePath = imagesExist ? imagesPath : documentsPath;
+    const filePath = getUploadPath(filename);
+    const exists = await uploadService.fileExists(filePath);
 
     let fileInfo = null;
     if (exists) {
@@ -135,7 +127,7 @@ export async function checkFile(
 
     res.json({
       exists,
-      filename,
+      filename: sanitizeFilename(filename),
       ...(fileInfo && {
         size: fileInfo.size,
         created: fileInfo.created,

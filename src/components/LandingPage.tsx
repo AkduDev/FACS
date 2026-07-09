@@ -5,7 +5,7 @@ import NewsSection from './NewsSection';
 import EventsSection from './EventsSection';
 import InstructorsSection from './InstructorsSection';
 import GraduatesSection from './GraduatesSection';
-import { Anchor, Compass, ChevronDown, Award, Droplet, Star, Shield, HelpCircle, Mail, MapPin, Phone } from 'lucide-react';
+import { Compass, ChevronDown, Award, Droplet, Star, Shield, Mail, MapPin, Phone } from 'lucide-react';
 import { motion } from 'motion/react';
 import fcasLogo from '../assets/images/fcas_logo_v2_1783530295569.jpg';
 import { useThemeLang } from '../ThemeLangContext';
@@ -42,6 +42,8 @@ export default function LandingPage({
             alt="Deep Sea Scuba"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
+            width={1920}
+            height={1080}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-marine-950 via-marine-950/40 to-marine-950" />
         </div>
@@ -134,6 +136,9 @@ export default function LandingPage({
                   alt="Diver exploring reef"
                   className="w-full object-cover aspect-4/3"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
+                  width={800}
+                  height={600}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-marine-950/60 to-transparent" />
                 
@@ -227,6 +232,9 @@ export default function LandingPage({
                 alt="María la Gorda"
                 className="w-full aspect-video object-cover"
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                width={800}
+                height={450}
               />
               <div className="p-3.5 sm:p-6">
                 <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-cyan-400">Pinar del Río</span>
@@ -244,6 +252,9 @@ export default function LandingPage({
                 alt="Jardines de la Reina"
                 className="w-full aspect-video object-cover"
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                width={800}
+                height={450}
               />
               <div className="p-3.5 sm:p-6">
                 <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-cyan-400">Ciego de Ávila / Camagüey</span>
@@ -261,6 +272,9 @@ export default function LandingPage({
                 alt="Bahía de Cochinos"
                 className="w-full aspect-video object-cover"
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                width={800}
+                height={450}
               />
               <div className="p-3.5 sm:p-6">
                 <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-cyan-400">Matanzas</span>

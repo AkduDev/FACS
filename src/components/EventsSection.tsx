@@ -1,6 +1,6 @@
 import React from 'react';
 import { EventItem } from '../types';
-import { Calendar, MapPin, Award, Trash, Star, Compass } from 'lucide-react';
+import { MapPin, Compass } from 'lucide-react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -8,7 +8,7 @@ interface EventsSectionProps {
   events: EventItem[];
 }
 
-export default function EventsSection({ events }: EventsSectionProps) {
+export default React.memo(function EventsSection({ events }: EventsSectionProps) {
   const { lang } = useThemeLang();
 
   const getCategoryBadge = (cat: string) => {
@@ -164,4 +164,4 @@ export default function EventsSection({ events }: EventsSectionProps) {
       </div>
     </section>
   );
-}
+});
