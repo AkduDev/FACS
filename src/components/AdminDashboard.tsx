@@ -194,7 +194,7 @@ export default function AdminDashboard({
       alert('Por favor ingrese una URL de imagen o suba un archivo.');
       return;
     }
-    if (galleryImageMode === 'upload' && !galleryFile && !editingId) {
+    if (galleryImageMode === 'upload' && !galleryForm.url && !galleryForm.localImage && !editingId) {
       alert('Por favor suba una imagen.');
       return;
     }
