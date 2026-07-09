@@ -49,40 +49,40 @@ export default function App() {
     fetchData();
   }, []);
 
-  const syncGallery = useCallback(async (action: 'add' | 'update' | 'delete', item?: GalleryItem, id?: string) => {
+  const syncGallery = useCallback(async (action: 'add' | 'update' | 'delete', item?: GalleryItem, id?: string, file?: File) => {
     try {
-      if (action === 'add' && item) await api.gallery.create(item);
-      else if (action === 'update' && item) await api.gallery.update(item.id, item);
+      if (action === 'add' && item) await api.gallery.create(item, file);
+      else if (action === 'update' && item) await api.gallery.update(item.id, item, file);
       else if (action === 'delete' && id) await api.gallery.delete(id);
     } catch (err) {
       console.error("Gallery sync error:", err);
     }
   }, []);
 
-  const syncNews = useCallback(async (action: 'add' | 'update' | 'delete', item?: NewsItem, id?: string) => {
+  const syncNews = useCallback(async (action: 'add' | 'update' | 'delete', item?: NewsItem, id?: string, file?: File) => {
     try {
-      if (action === 'add' && item) await api.news.create(item);
-      else if (action === 'update' && item) await api.news.update(item.id, item);
+      if (action === 'add' && item) await api.news.create(item, file);
+      else if (action === 'update' && item) await api.news.update(item.id, item, file);
       else if (action === 'delete' && id) await api.news.delete(id);
     } catch (err) {
       console.error("News sync error:", err);
     }
   }, []);
 
-  const syncEvents = useCallback(async (action: 'add' | 'update' | 'delete', item?: EventItem, id?: string) => {
+  const syncEvents = useCallback(async (action: 'add' | 'update' | 'delete', item?: EventItem, id?: string, file?: File) => {
     try {
-      if (action === 'add' && item) await api.events.create(item);
-      else if (action === 'update' && item) await api.events.update(item.id, item);
+      if (action === 'add' && item) await api.events.create(item, file);
+      else if (action === 'update' && item) await api.events.update(item.id, item, file);
       else if (action === 'delete' && id) await api.events.delete(id);
     } catch (err) {
       console.error("Events sync error:", err);
     }
   }, []);
 
-  const syncInstructors = useCallback(async (action: 'add' | 'update' | 'delete', item?: Instructor, id?: string) => {
+  const syncInstructors = useCallback(async (action: 'add' | 'update' | 'delete', item?: Instructor, id?: string, file?: File) => {
     try {
-      if (action === 'add' && item) await api.instructors.create(item);
-      else if (action === 'update' && item) await api.instructors.update(item.id, item);
+      if (action === 'add' && item) await api.instructors.create(item, file);
+      else if (action === 'update' && item) await api.instructors.update(item.id, item, file);
       else if (action === 'delete' && id) await api.instructors.delete(id);
     } catch (err) {
       console.error("Instructors sync error:", err);
@@ -99,7 +99,11 @@ export default function App() {
     }
   }, []);
 
-  const setGallery: React.Dispatch<React.SetStateAction<GalleryItem[]>> = useCallback((value) => {
+  type SyncableSetState<T> = {
+    (action: React.SetStateAction<T>, file?: File): void;
+  };
+
+  const setGallery: SyncableSetState<GalleryItem[]> = useCallback((value, file?) => {
     setGalleryState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -107,19 +111,19 @@ export default function App() {
         if (deleted) syncGallery('delete', undefined, deleted.id);
       } else if (next.length > prev.length) {
         const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncGallery('add', added);
+        if (added) syncGallery('add', added, undefined, file);
       } else {
         const updated = next.find(n => {
           const p = prev.find(item => item.id === n.id);
           return p && JSON.stringify(p) !== JSON.stringify(n);
         });
-        if (updated) syncGallery('update', updated);
+        if (updated) syncGallery('update', updated, undefined, file);
       }
       return next;
     });
   }, [syncGallery]);
 
-  const setNews: React.Dispatch<React.SetStateAction<NewsItem[]>> = useCallback((value) => {
+  const setNews: SyncableSetState<NewsItem[]> = useCallback((value, file?) => {
     setNewsState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -127,19 +131,19 @@ export default function App() {
         if (deleted) syncNews('delete', undefined, deleted.id);
       } else if (next.length > prev.length) {
         const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncNews('add', added);
+        if (added) syncNews('add', added, undefined, file);
       } else {
         const updated = next.find(n => {
           const p = prev.find(item => item.id === n.id);
           return p && JSON.stringify(p) !== JSON.stringify(n);
         });
-        if (updated) syncNews('update', updated);
+        if (updated) syncNews('update', updated, undefined, file);
       }
       return next;
     });
   }, [syncNews]);
 
-  const setEvents: React.Dispatch<React.SetStateAction<EventItem[]>> = useCallback((value) => {
+  const setEvents: SyncableSetState<EventItem[]> = useCallback((value, file?) => {
     setEventsState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -147,19 +151,19 @@ export default function App() {
         if (deleted) syncEvents('delete', undefined, deleted.id);
       } else if (next.length > prev.length) {
         const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncEvents('add', added);
+        if (added) syncEvents('add', added, undefined, file);
       } else {
         const updated = next.find(n => {
           const p = prev.find(item => item.id === n.id);
           return p && JSON.stringify(p) !== JSON.stringify(n);
         });
-        if (updated) syncEvents('update', updated);
+        if (updated) syncEvents('update', updated, undefined, file);
       }
       return next;
     });
   }, [syncEvents]);
 
-  const setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>> = useCallback((value) => {
+  const setInstructors: SyncableSetState<Instructor[]> = useCallback((value, file?) => {
     setInstructorsState((prev) => {
       const next = typeof value === 'function' ? (value as Function)(prev) : value;
       if (next.length < prev.length) {
@@ -167,13 +171,13 @@ export default function App() {
         if (deleted) syncInstructors('delete', undefined, deleted.id);
       } else if (next.length > prev.length) {
         const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncInstructors('add', added);
+        if (added) syncInstructors('add', added, undefined, file);
       } else {
         const updated = next.find(n => {
           const p = prev.find(item => item.id === n.id);
           return p && JSON.stringify(p) !== JSON.stringify(n);
         });
-        if (updated) syncInstructors('update', updated);
+        if (updated) syncInstructors('update', updated, undefined, file);
       }
       return next;
     });

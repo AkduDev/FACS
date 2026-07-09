@@ -202,14 +202,14 @@ export default function AdminDashboard({
     try {
       if (editingId) {
         // Update existing item
-        setGallery(prev => prev.map(item => item.id === editingId ? { ...item, ...galleryForm } : item));
+        setGallery(prev => prev.map(item => item.id === editingId ? { ...item, ...galleryForm } : item), galleryFile || undefined);
       } else {
         // Create new item
         const newItem: GalleryItem = {
           id: 'g_' + generateId(),
           ...galleryForm
         };
-        setGallery(prev => [newItem, ...prev]);
+        setGallery(prev => [newItem, ...prev], galleryFile || undefined);
       }
       resetForms();
     } catch (error) {
@@ -250,13 +250,13 @@ export default function AdminDashboard({
     }
 
     if (editingId) {
-      setNews(prev => prev.map(item => item.id === editingId ? { ...item, ...newsForm } : item));
+      setNews(prev => prev.map(item => item.id === editingId ? { ...item, ...newsForm } : item), newsFile || undefined);
     } else {
       const newItem: NewsItem = {
         id: 'n_' + generateId(),
         ...newsForm
       };
-      setNews(prev => [newItem, ...prev]);
+      setNews(prev => [newItem, ...prev], newsFile || undefined);
     }
     resetForms();
   };
@@ -294,13 +294,13 @@ export default function AdminDashboard({
     }
 
     if (editingId) {
-      setEvents(prev => prev.map(item => item.id === editingId ? { ...item, ...eventsForm } : item));
+      setEvents(prev => prev.map(item => item.id === editingId ? { ...item, ...eventsForm } : item), eventsFile || undefined);
     } else {
       const newItem: EventItem = {
         id: 'e_' + generateId(),
         ...eventsForm
       };
-      setEvents(prev => [newItem, ...prev]);
+      setEvents(prev => [newItem, ...prev], eventsFile || undefined);
     }
     resetForms();
   };
@@ -341,14 +341,14 @@ export default function AdminDashboard({
     const photoToSave = instructorForm.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
 
     if (editingId) {
-      setInstructors(prev => prev.map(item => item.id === editingId ? { ...item, ...instructorForm, photo: photoToSave } : item));
+      setInstructors(prev => prev.map(item => item.id === editingId ? { ...item, ...instructorForm, photo: photoToSave } : item), instructorFile || undefined);
     } else {
       const newItem: Instructor = {
         id: 'i_' + generateId(),
         ...instructorForm,
         photo: photoToSave
       };
-      setInstructors(prev => [newItem, ...prev]);
+      setInstructors(prev => [newItem, ...prev], instructorFile || undefined);
     }
     resetForms();
   };
