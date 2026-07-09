@@ -1,0 +1,20 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+server/uploads/images/*
+server/uploads/documents/*
+!server/uploads/images/.gitkeep
+!server/uploads/documents/.gitkeep
+
+# Documentación local y base de datos
+README.md
+DOCUMENTACION.md
+*.db
+*.db-journal
+database.json
+server/data/

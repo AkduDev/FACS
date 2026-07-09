@@ -1,0 +1,6 @@
+{
+  "name": "FCAS Cuba - Federación Cubana de Actividades Subacuáticas",
+  "description": "Sitio oficial de la Federación Cubana de Actividades Subacuáticas (FCAS). Explora nuestra galería de buceo, noticias, eventos y biografías de instructores certificados, además del registro oficial de graduados.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

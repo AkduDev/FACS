@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Gallery {
+  id          String   @id
+  url         String
+  title       String
+  description String
+  category    String
+  date        String
+  localImage  String?  // Ruta de imagen local subida
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model News {
+  id        String   @id
+  title     String
+  content   String
+  date      String
+  image     String?
+  localImage String?  // Ruta de imagen local subida
+  author    String
+  category  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id
+  title       String
+  date        String
+  location    String
+  description String
+  category    String
+  image       String?
+  localImage  String?  // Ruta de imagen local subida
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Instructor {
+  id                String   @id
+  name              String
+  bio               String
+  level             String
+  certificationCode String   @unique
+  photo             String
+  localPhoto        String?  // Ruta de foto local subida
+  experienceYears   Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Graduate {
+  id                String   @id
+  name              String
+  certificationCode String   @unique
+  courseName        String
+  graduationDate    String
+  instructorName    String
+  level             String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AdminUser {
+  id        String   @id
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

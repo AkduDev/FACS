@@ -1,0 +1,397 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Bento Grid - Deep Ocean Palette (Dark mode defaults) */
+  --color-marine-950: #001219;
+  --color-marine-900: #00212e;
+  --color-marine-850: #002d3e;
+  --color-marine-800: #003d5b;
+  --color-marine-700: #005f73;
+  --color-marine-600: #0a9396;
+  --color-marine-500: #34a0a4;
+  --color-marine-400: #94d2bd;
+  --color-marine-300: #e9d8a6;
+  --color-marine-200: #ee9b00;
+  --color-marine-100: #ca6702;
+  --color-marine-50: #9b2226;
+
+  --theme-text-white: #ffffff;
+  --theme-text-gradient-start: #ffffff;
+  --theme-text-gradient-middle: #cffafe;
+  --theme-text-gradient-end: #67e8f9;
+
+  --theme-bento-bg: rgba(0, 33, 46, 0.6);
+  --theme-bento-border: rgba(0, 95, 115, 0.35);
+}
+
+.light {
+  /* Bento Grid - Light theme overrides */
+  --color-marine-950: #f4f8fa; /* Soft light blue-gray background */
+  --color-marine-900: #ffffff; /* Clean white card/form background */
+  --color-marine-850: #eaf3f6; /* Soft gray-blue container/row background */
+  --color-marine-800: #d4e5ec; /* Light border/divider */
+  --color-marine-700: #005f73; /* Steady brand blue-teal for headers */
+  --color-marine-600: #0a9396; /* Brand accent */
+  --color-marine-500: #1d7b7e; /* Readable dark teal */
+  --color-marine-400: #255d54; /* Balanced dark green-teal for text label readability */
+  --color-marine-300: #8a6500; /* Rich gold/ochre for high-contrast warnings/subtitles */
+  --color-marine-200: #9b5a00; /* Saturated orange */
+  --color-marine-100: #873d00; /* Dark amber/brown */
+  --color-marine-50: #7b1317; /* Saturated dark red */
+
+  --theme-text-white: #0a2533; /* Convert white text to a rich dark ocean color */
+  --theme-text-gradient-start: #003049; /* High-contrast gradient text colors */
+  --theme-text-gradient-middle: #005f73;
+  --theme-text-gradient-end: #0a9396;
+
+  --theme-bento-bg: rgba(255, 255, 255, 0.95);
+  --theme-bento-border: rgba(0, 95, 115, 0.15);
+}
+
+@theme {
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --color-marine-950: var(--color-marine-950);
+  --color-marine-900: var(--color-marine-900);
+  --color-marine-850: var(--color-marine-850);
+  --color-marine-800: var(--color-marine-800);
+  --color-marine-700: var(--color-marine-700);
+  --color-marine-600: var(--color-marine-600);
+  --color-marine-500: var(--color-marine-500);
+  --color-marine-400: var(--color-marine-400);
+  --color-marine-300: var(--color-marine-300);
+  --color-marine-200: var(--color-marine-200);
+  --color-marine-100: var(--color-marine-100);
+  --color-marine-50: var(--color-marine-50);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-marine-950);
+  color: var(--theme-text-white);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar for deep ocean feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-marine-950);
+}
+::-webkit-scrollbar-thumb {
+  background: #005f73;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0a9396;
+}
+
+/* Bento Card class style */
+.bento-card {
+  background-color: var(--theme-bento-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--theme-bento-border);
+  border-radius: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-card:hover {
+  border-color: rgba(10, 147, 150, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(10, 147, 150, 0.25);
+}
+
+/* Smart scoping for Admin Workspace in dark Bento Grid */
+.admin-workspace {
+  background-color: #001219 !important;
+  color: #eef7fc !important;
+}
+
+/* Side navigation tab buttons - inactive vs active */
+.admin-workspace .lg\:col-span-3 {
+  background-color: rgba(0, 33, 46, 0.85) !important;
+  border-color: rgba(0, 95, 115, 0.4) !important;
+}
+
+.admin-workspace button.text-gray-600 {
+  color: rgba(148, 210, 189, 0.7) !important; /* Soft, highly-readable minty-slate for inactive tabs */
+}
+
+.admin-workspace button.text-gray-600:hover {
+  color: #ffffff !important;
+  background-color: rgba(10, 147, 150, 0.2) !important;
+}
+
+/* Active tab button styling */
+.admin-workspace button.bg-marine-50.text-marine-700 {
+  background-color: rgba(10, 147, 150, 0.35) !important;
+  color: #34a0a4 !important; /* Vibrant high-contrast custom cyan */
+  border: 1px solid rgba(10, 147, 150, 0.6) !important;
+}
+
+/* Forms and general admin cards container */
+.admin-workspace .bg-white {
+  background-color: rgba(0, 33, 46, 0.7) !important;
+  backdrop-filter: blur(12px);
+  color: #ffffff !important;
+  border-color: rgba(0, 95, 115, 0.35) !important;
+}
+
+.admin-workspace .text-gray-900,
+.admin-workspace .text-marine-950,
+.admin-workspace .text-gray-850,
+.admin-workspace .text-gray-800,
+.admin-workspace .text-gray-750,
+.admin-workspace .text-gray-700 {
+  color: #ffffff !important;
+}
+
+/* Inputs, Select dropdowns, Textareas */
+.admin-workspace input,
+.admin-workspace select,
+.admin-workspace textarea {
+  background-color: #001219 !important;
+  color: #ffffff !important;
+  border-color: rgba(0, 95, 115, 0.4) !important;
+}
+
+.admin-workspace select option {
+  background-color: #00212e !important;
+  color: #ffffff !important;
+}
+
+.admin-workspace .bg-gray-50 {
+  background-color: #001219 !important;
+}
+
+.admin-workspace .bg-marine-50 {
+  background-color: rgba(10, 147, 150, 0.25) !important;
+  color: #94d2bd !important;
+}
+
+.admin-workspace .text-marine-750,
+.admin-workspace .text-marine-700 {
+  color: #34a0a4 !important;
+}
+
+/* Listing Containers (Tables/Grids) & List section headers */
+.admin-workspace .bg-white.border.border-gray-100 {
+  background-color: rgba(0, 21, 30, 0.8) !important;
+  border: 1px solid rgba(0, 95, 115, 0.4) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.admin-workspace h3.bg-gray-50 {
+  background-color: rgba(0, 33, 46, 0.95) !important;
+  color: #e9d8a6 !important; /* Warm gold/amber header text for contrast and professional separation */
+  border-bottom: 1px solid rgba(0, 95, 115, 0.45) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Listing rows & hover effects */
+.admin-workspace .divide-y > div {
+  border-color: rgba(0, 95, 115, 0.25) !important;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.admin-workspace .divide-y > div:hover {
+  background-color: rgba(10, 147, 150, 0.08) !important;
+}
+
+/* Title text colors in list rows (ensure absolute legibility) */
+.admin-workspace .divide-y h4 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Subtitle and descriptive content text colors in list rows */
+.admin-workspace .divide-y p,
+.admin-workspace .divide-y .text-gray-500,
+.admin-workspace .divide-y .text-xs.text-gray-500 {
+  color: #cbd5e1 !important; /* Light slate gray for optimal long text reading contrast */
+  font-size: 0.8rem !important;
+  line-height: 1.45 !important;
+}
+
+/* Category Badges inside list rows - fix low contrast issue of light bg with overridden text */
+.admin-workspace .divide-y span.bg-gray-100.text-gray-600 {
+  background-color: rgba(10, 147, 150, 0.2) !important;
+  color: #48cae4 !important; /* High contrast cyan text */
+  border: 1px solid rgba(10, 147, 150, 0.4) !important;
+  padding: 0.15rem 0.5rem !important;
+  border-radius: 0.375rem !important;
+  font-weight: 700 !important;
+  display: inline-block !important;
+}
+
+/* Date / Location metadata text */
+.admin-workspace .divide-y .text-gray-400,
+.admin-workspace .divide-y .text-gray-450,
+.admin-workspace .divide-y .text-cyan-600,
+.admin-workspace .divide-y span.text-cyan-600,
+.admin-workspace .divide-y span.text-gray-400 {
+  color: #94d2bd !important; /* Pristine minty pastel green for metadata */
+  font-weight: 600 !important;
+}
+
+/* Instructor / Graduate custom certification code badges */
+.admin-workspace .divide-y span.bg-cyan-50 {
+  background-color: rgba(10, 147, 150, 0.15) !important;
+  color: #48cae4 !important; /* Vibrant high-contrast neon cyan */
+  border: 1px solid rgba(72, 202, 228, 0.35) !important;
+  font-weight: 700 !important;
+}
+
+/* Action buttons in lists (Edit, Delete) */
+.admin-workspace .divide-y button.bg-gray-50 {
+  background-color: rgba(0, 33, 46, 0.8) !important;
+  border: 1px solid rgba(0, 95, 115, 0.4) !important;
+  color: #94d2bd !important;
+}
+
+.admin-workspace .divide-y button.bg-gray-50:hover {
+  background-color: rgba(10, 147, 150, 0.25) !important;
+  color: #ffffff !important;
+  border-color: rgba(10, 147, 150, 0.6) !important;
+}
+
+/* Badge colors inside general workspace */
+.admin-workspace .bg-cyan-50 {
+  background-color: rgba(10, 147, 150, 0.15) !important;
+  color: #34a0a4 !important;
+}
+
+.admin-workspace .text-cyan-600 {
+  color: #34a0a4 !important;
+}
+
+.admin-workspace .bg-amber-50 {
+  background-color: rgba(238, 155, 0, 0.15) !important;
+  color: #ee9b00 !important;
+}
+
+.admin-workspace .bg-red-50 {
+  background-color: rgba(202, 103, 2, 0.15) !important;
+  color: #ca6702 !important;
+}
+
+.admin-workspace .border-gray-100,
+.admin-workspace .border-gray-200,
+.admin-workspace .border-gray-150 {
+  border-color: rgba(0, 95, 115, 0.35) !important;
+}
+
+/* Form section labels */
+.admin-workspace .block.text-xs.font-bold.text-gray-500 {
+  color: #94d2bd !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* --- LIGHT MODE DYNAMIC STYLING --- */
+.light .text-white:not(button):not(a.bg-cyan-600):not(.bg-cyan-600):not(.bg-cyan-700):not(.bg-marine-700):not(.bg-marine-600):not(.bg-red-600):not(.bg-emerald-600):not(.bg-emerald-950\/60):not(button *):not(.bg-cyan-600 *):not(.bg-red-600 *):not(.bg-emerald-600 *):not(.keep-white) {
+  color: var(--theme-text-white) !important;
+}
+
+.light .bg-clip-text {
+  background-image: linear-gradient(to right, var(--theme-text-gradient-start), var(--theme-text-gradient-middle), var(--theme-text-gradient-end)) !important;
+}
+
+.light .from-white {
+  --tw-gradient-from: var(--theme-text-gradient-start) !important;
+}
+.light .via-cyan-100 {
+  --tw-gradient-via: var(--theme-text-gradient-middle) !important;
+}
+.light .to-cyan-300 {
+  --tw-gradient-to: var(--theme-text-gradient-end) !important;
+}
+
+/* Fixes for card gradients and transparent overlays in light mode */
+.light .bg-gradient-to-t.from-marine-950\/90 {
+  background-image: linear-gradient(to top, rgba(244, 248, 250, 0.95), rgba(244, 248, 250, 0.4), transparent) !important;
+}
+
+.light .bg-marine-900\/60 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  color: var(--theme-text-white) !important;
+}
+
+.light .text-marine-100 {
+  color: var(--color-marine-600) !important;
+}
+
+.light .text-marine-250 {
+  color: var(--color-marine-500) !important;
+}
+
+.light .text-marine-300 {
+  color: var(--color-marine-400) !important;
+}
+
+/* Ensure admin workspace inputs look beautiful in light mode */
+.light .admin-workspace input,
+.light .admin-workspace select,
+.light .admin-workspace textarea {
+  background-color: #ffffff !important;
+  color: #0a2533 !important;
+  border-color: #d4e5ec !important;
+}
+
+.light .admin-workspace select option {
+  background-color: #ffffff !important;
+  color: #0a2533 !important;
+}
+
+.light .admin-workspace .bg-white {
+  background-color: #ffffff !important;
+  color: #0a2533 !important;
+  border-color: #e2edf3 !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light .admin-workspace .text-gray-900,
+.light .admin-workspace .text-marine-950,
+.light .admin-workspace .text-gray-850,
+.light .admin-workspace .text-gray-800,
+.light .admin-workspace .text-gray-750,
+.light .admin-workspace .text-gray-700 {
+  color: #0a2533 !important;
+}
+
+.light .admin-workspace h3.bg-gray-50 {
+  background-color: #f4f8fa !important;
+  color: #005f73 !important;
+  border-bottom: 1px solid #d4e5ec !important;
+}
+
+.light .admin-workspace .divide-y h4 {
+  color: #0a2533 !important;
+}
+
+.light .admin-workspace .divide-y p,
+.light .admin-workspace .divide-y .text-gray-500,
+.light .admin-workspace .divide-y .text-xs.text-gray-500 {
+  color: #4a5d68 !important;
+}
+
+.light .admin-workspace .divide-y span.text-gray-400 {
+  color: #005f73 !important;
+}
+
