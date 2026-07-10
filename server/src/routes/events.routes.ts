@@ -6,5 +6,5 @@ export default createCrudRoutes({
   controller: eventsController,
   createSchema: eventCreateSchema,
   updateSchema: eventUpdateSchema,
-  hasFileUpload: true,
+  hasFileUpload: false,
 });

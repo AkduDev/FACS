@@ -6,5 +6,5 @@ export default createCrudRoutes({
   controller: newsController,
   createSchema: newsCreateSchema,
   updateSchema: newsUpdateSchema,
-  hasFileUpload: true,
+  hasFileUpload: false,
 });

@@ -25,10 +25,17 @@ function useSyncedState<T extends { id: string }>(
   const [state, setState] = useState<T[]>(initialState);
   const stateRef = useRef(state);
   stateRef.current = state;
+  const isInitialLoadRef = useRef(true);
 
   const setSynced: SyncableSetter<T> = useCallback((value, file?) => {
     setState(prev => {
       const next = typeof value === 'function' ? (value as (prev: T[]) => T[])(prev) : value;
+      
+      // Saltar sincronización durante la carga inicial
+      if (isInitialLoadRef.current) {
+        return next;
+      }
+
       const operation = detectSyncOperation(prev, next, hasChanges);
       if (operation) {
         if (operation.action === 'delete' && operation.id) {
@@ -43,7 +50,17 @@ function useSyncedState<T extends { id: string }>(
     });
   }, [syncFn, hasChanges]);
 
-  return [state, setSynced];
+  // Función para cargar datos iniciales sin sincronizar
+  const loadData = useCallback((data: T[]) => {
+    isInitialLoadRef.current = true;
+    setState(data);
+    // Permitir sincronización después del siguiente render
+    requestAnimationFrame(() => {
+      isInitialLoadRef.current = false;
+    });
+  }, []);
+
+  return [state, setSynced, loadData] as [T[], SyncableSetter<T>, (data: T[]) => void];
 }
 
 export default function App() {
@@ -51,7 +68,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => api.auth.isLoggedIn());
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const [gallery, setGallery] = useSyncedState<GalleryItem>(
+  const [gallery, setGallery, loadGallery] = useSyncedState<GalleryItem>(
     [],
     useCallback(async (action, item, id, file) => {
       try {
@@ -64,7 +81,7 @@ export default function App() {
     }, [])
   );
 
-  const [news, setNews] = useSyncedState<NewsItem>(
+  const [news, setNews, loadNews] = useSyncedState<NewsItem>(
     [],
     useCallback(async (action, item, id, file) => {
       try {
@@ -77,7 +94,7 @@ export default function App() {
     }, [])
   );
 
-  const [events, setEvents] = useSyncedState<EventItem>(
+  const [events, setEvents, loadEvents] = useSyncedState<EventItem>(
     [],
     useCallback(async (action, item, id, file) => {
       try {
@@ -90,7 +107,7 @@ export default function App() {
     }, [])
   );
 
-  const [instructors, setInstructors] = useSyncedState<Instructor>(
+  const [instructors, setInstructors, loadInstructors] = useSyncedState<Instructor>(
     [],
     useCallback(async (action, item, id, file) => {
       try {
@@ -103,7 +120,7 @@ export default function App() {
     }, [])
   );
 
-  const [graduates, setGraduates] = useSyncedState<Graduate>(
+  const [graduates, setGraduates, loadGraduates] = useSyncedState<Graduate>(
     [],
     useCallback(async (action, item, id) => {
       try {
@@ -126,11 +143,11 @@ export default function App() {
           api.instructors.getAll(1, 100),
           api.graduates.getAll(1, 100),
         ]);
-        if (results[0].status === "fulfilled") setGallery(() => (results[0] as PromiseFulfilledResult<{ data: GalleryItem[] }>).value.data);
-        if (results[1].status === "fulfilled") setNews(() => (results[1] as PromiseFulfilledResult<{ data: NewsItem[] }>).value.data);
-        if (results[2].status === "fulfilled") setEvents(() => (results[2] as PromiseFulfilledResult<{ data: EventItem[] }>).value.data);
-        if (results[3].status === "fulfilled") setInstructors(() => (results[3] as PromiseFulfilledResult<{ data: Instructor[] }>).value.data);
-        if (results[4].status === "fulfilled") setGraduates(() => (results[4] as PromiseFulfilledResult<{ data: Graduate[] }>).value.data);
+        if (results[0].status === "fulfilled") loadGallery((results[0] as PromiseFulfilledResult<{ data: GalleryItem[] }>).value.data);
+        if (results[1].status === "fulfilled") loadNews((results[1] as PromiseFulfilledResult<{ data: NewsItem[] }>).value.data);
+        if (results[2].status === "fulfilled") loadEvents((results[2] as PromiseFulfilledResult<{ data: EventItem[] }>).value.data);
+        if (results[3].status === "fulfilled") loadInstructors((results[3] as PromiseFulfilledResult<{ data: Instructor[] }>).value.data);
+        if (results[4].status === "fulfilled") loadGraduates((results[4] as PromiseFulfilledResult<{ data: Graduate[] }>).value.data);
       } catch (err) {
         console.error("Error fetching data from API:", err);
       } finally {

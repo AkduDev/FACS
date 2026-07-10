@@ -36,6 +36,9 @@ export function createCrudService<T extends Record<string, unknown>>(
     maxLimit = 100,
   } = config;
 
+  // Convertir modelName PascalCase a camelCase para acceder a tx.gallery en lugar de tx.Gallery
+  const txModelName = config.modelName.charAt(0).toLowerCase() + config.modelName.slice(1);
+
   async function findAll(options?: { page?: number; limit?: number; select?: string[] }) {
     const page = options?.page || 1;
     const limit = Math.min(options?.limit || 20, maxLimit);
@@ -98,7 +101,8 @@ export function createCrudService<T extends Record<string, unknown>>(
     file?: Express.Multer.File
   ) {
     return prisma.$transaction(async (tx) => {
-      const existingItem = await (tx as any)[config.modelName].findUnique({ where: { id } });
+      const txModel = (tx as any)[txModelName];
+      const existingItem = await txModel.findUnique({ where: { id } });
       if (!existingItem) {
         throw createError(notFoundMessage || `${config.modelName} not found`, 404);
       }
@@ -115,7 +119,7 @@ export function createCrudService<T extends Record<string, unknown>>(
 
       const convertedData = convertDates({ ...data, ...imageData }, dateFields);
 
-      return (tx as any)[config.modelName].update({
+      return txModel.update({
         where: { id },
         data: convertedData,
       });
@@ -124,7 +128,8 @@ export function createCrudService<T extends Record<string, unknown>>(
 
   async function remove(id: string) {
     return prisma.$transaction(async (tx) => {
-      const item = await (tx as any)[config.modelName].findUnique({ where: { id } });
+      const txModel = (tx as any)[txModelName];
+      const item = await txModel.findUnique({ where: { id } });
       if (!item) {
         throw createError(notFoundMessage || `${config.modelName} not found`, 404);
       }
@@ -133,7 +138,7 @@ export function createCrudService<T extends Record<string, unknown>>(
         await uploadService.deleteFileByUrl((item as any)[localImageField]);
       }
 
-      return (tx as any)[config.modelName].delete({ where: { id } });
+      return txModel.delete({ where: { id } });
     });
   }
 

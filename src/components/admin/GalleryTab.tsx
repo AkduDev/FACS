@@ -35,7 +35,11 @@ export default function GalleryTab({ items, onItemsChange }: TabComponentProps<G
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title) {
-      alert('Por favor complete los campos obligatorios.');
+      alert('Por favor complete el título (obligatorio).');
+      return;
+    }
+    if (!form.description) {
+      alert('Por favor complete la descripción (obligatoria).');
       return;
     }
     if (imageMode === 'url' && !form.url) {
@@ -119,13 +123,14 @@ export default function GalleryTab({ items, onItemsChange }: TabComponentProps<G
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Descripción Detallada</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Descripción Detallada (Obligatorio)</label>
             <textarea
               rows={3}
               placeholder="Describa el espécimen, el lugar o la historia detrás de la fotografía..."
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               className="w-full border border-gray-200 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              required
             />
           </div>
           <div>

@@ -10,14 +10,7 @@ import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import path from "path";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { cacheControl } from "./middleware/cacheControl.js";
-import galleryRoutes from "./routes/gallery.routes.js";
-import newsRoutes from "./routes/news.routes.js";
-import eventsRoutes from "./routes/events.routes.js";
-import instructorsRoutes from "./routes/instructors.routes.js";
-import graduatesRoutes from "./routes/graduates.routes.js";
-import authRoutes from "./routes/auth.routes.js";
-import uploadRoutes from "./routes/upload.routes.js";
+import apiRoutes from "./routes/index.js";
 
 if (!process.env.JWT_SECRET) {
   console.error("FATAL: JWT_SECRET environment variable is required");
@@ -75,14 +68,8 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 // Static files - Serve uploaded files
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-// API Routes (public GET endpoints get cache headers)
-app.use("/api/gallery", cacheControl("5m"), galleryRoutes);
-app.use("/api/news", cacheControl("5m"), newsRoutes);
-app.use("/api/events", cacheControl("5m"), eventsRoutes);
-app.use("/api/instructors", cacheControl("10m"), instructorsRoutes);
-app.use("/api/graduates", cacheControl("10m"), graduatesRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/uploads", uploadRoutes);
+// API Routes
+app.use("/api", apiRoutes);
 
 // Health check endpoint
 app.get("/api/health", async (_req, res) => {

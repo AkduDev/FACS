@@ -6,5 +6,5 @@ export default createCrudRoutes({
   controller: galleryController,
   createSchema: galleryCreateSchema,
   updateSchema: galleryUpdateSchema,
-  hasFileUpload: true,
+  hasFileUpload: false,
 });

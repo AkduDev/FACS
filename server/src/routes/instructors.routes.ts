@@ -6,5 +6,5 @@ export default createCrudRoutes({
   controller: instructorsController,
   createSchema: instructorCreateSchema,
   updateSchema: instructorUpdateSchema,
-  hasFileUpload: true,
+  hasFileUpload: false,
 });

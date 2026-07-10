@@ -10,7 +10,10 @@ export function validate(
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const data = req[source];
-      schema.parse(data);
+      const parsed = schema.parse(data);
+      // Reemplazar req[source] con el resultado parseado para eliminar campos extra
+      // y aplicar transformaciones/defaults de Zod
+      (req as any)[source] = parsed;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
