@@ -4,6 +4,7 @@ import { Camera, Eye, X, Calendar, ArrowLeft, ArrowRight, Compass } from 'lucide
 import { motion, AnimatePresence } from 'motion/react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
+import LazyImage from './LazyImage';
 
 interface GallerySectionProps {
   items: GalleryItem[];
@@ -121,10 +122,9 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
               >
                 {/* Image Wrap */}
                 <div className="relative aspect-4/3 overflow-hidden">
-                  <img
+                  <LazyImage
                     src={getImageUrl(item) || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'}
                     alt={item.title}
-                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />

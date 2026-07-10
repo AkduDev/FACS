@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import Navbar from './components/Navbar';
 import LandingPage from './components/LandingPage';
 import { GalleryItem, NewsItem, EventItem, Instructor, Graduate } from './types';
 import { api } from './api';
+import { detectSyncOperation, shallowEqual } from './utils/syncUtils';
 
 const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
 
@@ -14,32 +15,122 @@ function SectionSkeleton() {
   );
 }
 
+type SyncableSetter<T> = (value: React.SetStateAction<T[]>, file?: File) => void;
+
+function useSyncedState<T extends { id: string }>(
+  initialState: T[],
+  syncFn: (action: 'add' | 'update' | 'delete', item?: T, id?: string, file?: File) => Promise<void>,
+  hasChanges?: (prev: T, next: T) => boolean
+): [T[], SyncableSetter<T>] {
+  const [state, setState] = useState<T[]>(initialState);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const setSynced: SyncableSetter<T> = useCallback((value, file?) => {
+    setState(prev => {
+      const next = typeof value === 'function' ? (value as (prev: T[]) => T[])(prev) : value;
+      const operation = detectSyncOperation(prev, next, hasChanges);
+      if (operation) {
+        if (operation.action === 'delete' && operation.id) {
+          syncFn('delete', undefined, operation.id);
+        } else if (operation.action === 'add' && operation.item) {
+          syncFn('add', operation.item, undefined, file);
+        } else if (operation.action === 'update' && operation.item) {
+          syncFn('update', operation.item, undefined, file);
+        }
+      }
+      return next;
+    });
+  }, [syncFn, hasChanges]);
+
+  return [state, setSynced];
+}
+
 export default function App() {
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => api.auth.isLoggedIn());
-
-  const [gallery, setGalleryState] = useState<GalleryItem[]>([]);
-  const [news, setNewsState] = useState<NewsItem[]>([]);
-  const [events, setEventsState] = useState<EventItem[]>([]);
-  const [instructors, setInstructorsState] = useState<Instructor[]>([]);
-  const [graduates, setGraduatesState] = useState<Graduate[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [gallery, setGallery] = useSyncedState<GalleryItem>(
+    [],
+    useCallback(async (action, item, id, file) => {
+      try {
+        if (action === 'add' && item) await api.gallery.create(item, file);
+        else if (action === 'update' && item) await api.gallery.update(item.id, item, file);
+        else if (action === 'delete' && id) await api.gallery.delete(id);
+      } catch (err) {
+        console.error("Gallery sync error:", err);
+      }
+    }, [])
+  );
+
+  const [news, setNews] = useSyncedState<NewsItem>(
+    [],
+    useCallback(async (action, item, id, file) => {
+      try {
+        if (action === 'add' && item) await api.news.create(item, file);
+        else if (action === 'update' && item) await api.news.update(item.id, item, file);
+        else if (action === 'delete' && id) await api.news.delete(id);
+      } catch (err) {
+        console.error("News sync error:", err);
+      }
+    }, [])
+  );
+
+  const [events, setEvents] = useSyncedState<EventItem>(
+    [],
+    useCallback(async (action, item, id, file) => {
+      try {
+        if (action === 'add' && item) await api.events.create(item, file);
+        else if (action === 'update' && item) await api.events.update(item.id, item, file);
+        else if (action === 'delete' && id) await api.events.delete(id);
+      } catch (err) {
+        console.error("Events sync error:", err);
+      }
+    }, [])
+  );
+
+  const [instructors, setInstructors] = useSyncedState<Instructor>(
+    [],
+    useCallback(async (action, item, id, file) => {
+      try {
+        if (action === 'add' && item) await api.instructors.create(item, file);
+        else if (action === 'update' && item) await api.instructors.update(item.id, item, file);
+        else if (action === 'delete' && id) await api.instructors.delete(id);
+      } catch (err) {
+        console.error("Instructors sync error:", err);
+      }
+    }, [])
+  );
+
+  const [graduates, setGraduates] = useSyncedState<Graduate>(
+    [],
+    useCallback(async (action, item, id) => {
+      try {
+        if (action === 'add' && item) await api.graduates.create(item);
+        else if (action === 'update' && item) await api.graduates.update(item.id, item);
+        else if (action === 'delete' && id) await api.graduates.delete(id);
+      } catch (err) {
+        console.error("Graduates sync error:", err);
+      }
+    }, [])
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const results = await Promise.allSettled([
-          api.gallery.getAll(),
-          api.news.getAll(),
-          api.events.getAll(),
-          api.instructors.getAll(),
-          api.graduates.getAll(),
+          api.gallery.getAll(1, 100),
+          api.news.getAll(1, 100),
+          api.events.getAll(1, 100),
+          api.instructors.getAll(1, 100),
+          api.graduates.getAll(1, 100),
         ]);
-        if (results[0].status === "fulfilled") setGalleryState(results[0].value);
-        if (results[1].status === "fulfilled") setNewsState(results[1].value);
-        if (results[2].status === "fulfilled") setEventsState(results[2].value);
-        if (results[3].status === "fulfilled") setInstructorsState(results[3].value);
-        if (results[4].status === "fulfilled") setGraduatesState(results[4].value);
+        if (results[0].status === "fulfilled") setGallery(() => (results[0] as PromiseFulfilledResult<{ data: GalleryItem[] }>).value.data);
+        if (results[1].status === "fulfilled") setNews(() => (results[1] as PromiseFulfilledResult<{ data: NewsItem[] }>).value.data);
+        if (results[2].status === "fulfilled") setEvents(() => (results[2] as PromiseFulfilledResult<{ data: EventItem[] }>).value.data);
+        if (results[3].status === "fulfilled") setInstructors(() => (results[3] as PromiseFulfilledResult<{ data: Instructor[] }>).value.data);
+        if (results[4].status === "fulfilled") setGraduates(() => (results[4] as PromiseFulfilledResult<{ data: Graduate[] }>).value.data);
       } catch (err) {
         console.error("Error fetching data from API:", err);
       } finally {
@@ -48,160 +139,6 @@ export default function App() {
     };
     fetchData();
   }, []);
-
-  const syncGallery = useCallback(async (action: 'add' | 'update' | 'delete', item?: GalleryItem, id?: string, file?: File) => {
-    try {
-      if (action === 'add' && item) await api.gallery.create(item, file);
-      else if (action === 'update' && item) await api.gallery.update(item.id, item, file);
-      else if (action === 'delete' && id) await api.gallery.delete(id);
-    } catch (err) {
-      console.error("Gallery sync error:", err);
-    }
-  }, []);
-
-  const syncNews = useCallback(async (action: 'add' | 'update' | 'delete', item?: NewsItem, id?: string, file?: File) => {
-    try {
-      if (action === 'add' && item) await api.news.create(item, file);
-      else if (action === 'update' && item) await api.news.update(item.id, item, file);
-      else if (action === 'delete' && id) await api.news.delete(id);
-    } catch (err) {
-      console.error("News sync error:", err);
-    }
-  }, []);
-
-  const syncEvents = useCallback(async (action: 'add' | 'update' | 'delete', item?: EventItem, id?: string, file?: File) => {
-    try {
-      if (action === 'add' && item) await api.events.create(item, file);
-      else if (action === 'update' && item) await api.events.update(item.id, item, file);
-      else if (action === 'delete' && id) await api.events.delete(id);
-    } catch (err) {
-      console.error("Events sync error:", err);
-    }
-  }, []);
-
-  const syncInstructors = useCallback(async (action: 'add' | 'update' | 'delete', item?: Instructor, id?: string, file?: File) => {
-    try {
-      if (action === 'add' && item) await api.instructors.create(item, file);
-      else if (action === 'update' && item) await api.instructors.update(item.id, item, file);
-      else if (action === 'delete' && id) await api.instructors.delete(id);
-    } catch (err) {
-      console.error("Instructors sync error:", err);
-    }
-  }, []);
-
-  const syncGraduates = useCallback(async (action: 'add' | 'update' | 'delete', item?: Graduate, id?: string) => {
-    try {
-      if (action === 'add' && item) await api.graduates.create(item);
-      else if (action === 'update' && item) await api.graduates.update(item.id, item);
-      else if (action === 'delete' && id) await api.graduates.delete(id);
-    } catch (err) {
-      console.error("Graduates sync error:", err);
-    }
-  }, []);
-
-  type SyncableSetState<T> = {
-    (action: React.SetStateAction<T>, file?: File): void;
-  };
-
-  const setGallery: SyncableSetState<GalleryItem[]> = useCallback((value, file?) => {
-    setGalleryState((prev) => {
-      const next = typeof value === 'function' ? (value as Function)(prev) : value;
-      if (next.length < prev.length) {
-        const deleted = prev.find(p => !next.some(n => n.id === p.id));
-        if (deleted) syncGallery('delete', undefined, deleted.id);
-      } else if (next.length > prev.length) {
-        const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncGallery('add', added, undefined, file);
-      } else {
-        const updated = next.find(n => {
-          const p = prev.find(item => item.id === n.id);
-          return p && JSON.stringify(p) !== JSON.stringify(n);
-        });
-        if (updated) syncGallery('update', updated, undefined, file);
-      }
-      return next;
-    });
-  }, [syncGallery]);
-
-  const setNews: SyncableSetState<NewsItem[]> = useCallback((value, file?) => {
-    setNewsState((prev) => {
-      const next = typeof value === 'function' ? (value as Function)(prev) : value;
-      if (next.length < prev.length) {
-        const deleted = prev.find(p => !next.some(n => n.id === p.id));
-        if (deleted) syncNews('delete', undefined, deleted.id);
-      } else if (next.length > prev.length) {
-        const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncNews('add', added, undefined, file);
-      } else {
-        const updated = next.find(n => {
-          const p = prev.find(item => item.id === n.id);
-          return p && JSON.stringify(p) !== JSON.stringify(n);
-        });
-        if (updated) syncNews('update', updated, undefined, file);
-      }
-      return next;
-    });
-  }, [syncNews]);
-
-  const setEvents: SyncableSetState<EventItem[]> = useCallback((value, file?) => {
-    setEventsState((prev) => {
-      const next = typeof value === 'function' ? (value as Function)(prev) : value;
-      if (next.length < prev.length) {
-        const deleted = prev.find(p => !next.some(n => n.id === p.id));
-        if (deleted) syncEvents('delete', undefined, deleted.id);
-      } else if (next.length > prev.length) {
-        const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncEvents('add', added, undefined, file);
-      } else {
-        const updated = next.find(n => {
-          const p = prev.find(item => item.id === n.id);
-          return p && JSON.stringify(p) !== JSON.stringify(n);
-        });
-        if (updated) syncEvents('update', updated, undefined, file);
-      }
-      return next;
-    });
-  }, [syncEvents]);
-
-  const setInstructors: SyncableSetState<Instructor[]> = useCallback((value, file?) => {
-    setInstructorsState((prev) => {
-      const next = typeof value === 'function' ? (value as Function)(prev) : value;
-      if (next.length < prev.length) {
-        const deleted = prev.find(p => !next.some(n => n.id === p.id));
-        if (deleted) syncInstructors('delete', undefined, deleted.id);
-      } else if (next.length > prev.length) {
-        const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncInstructors('add', added, undefined, file);
-      } else {
-        const updated = next.find(n => {
-          const p = prev.find(item => item.id === n.id);
-          return p && JSON.stringify(p) !== JSON.stringify(n);
-        });
-        if (updated) syncInstructors('update', updated, undefined, file);
-      }
-      return next;
-    });
-  }, [syncInstructors]);
-
-  const setGraduates: React.Dispatch<React.SetStateAction<Graduate[]>> = useCallback((value) => {
-    setGraduatesState((prev) => {
-      const next = typeof value === 'function' ? (value as Function)(prev) : value;
-      if (next.length < prev.length) {
-        const deleted = prev.find(p => !next.some(n => n.id === p.id));
-        if (deleted) syncGraduates('delete', undefined, deleted.id);
-      } else if (next.length > prev.length) {
-        const added = next.find(n => !prev.some(p => p.id === n.id));
-        if (added) syncGraduates('add', added);
-      } else {
-        const updated = next.find(n => {
-          const p = prev.find(item => item.id === n.id);
-          return p && JSON.stringify(p) !== JSON.stringify(n);
-        });
-        if (updated) syncGraduates('update', updated);
-      }
-      return next;
-    });
-  }, [syncGraduates]);
 
   const handleLogin = useCallback(async (password: string): Promise<boolean> => {
     try {

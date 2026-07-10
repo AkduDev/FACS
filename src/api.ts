@@ -83,6 +83,16 @@ async function updateWithFile<T>(url: string, data: any, file: File): Promise<T>
   return requestFormData<T>(url, 'PUT', formData);
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export const api = {
   auth: {
     async login(username: string, password: string): Promise<LoginResponse> {
@@ -102,7 +112,13 @@ export const api = {
   },
 
   gallery: {
-    getAll: () => request<{ data: any[]; pagination: any }>('/gallery').then(r => r.data),
+    getAll: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', String(page));
+      if (limit) params.set('limit', String(limit));
+      const query = params.toString();
+      return request<PaginatedResponse<any>>(`/gallery${query ? `?${query}` : ''}`);
+    },
     getById: (id: string) => request<any>(`/gallery/${id}`),
     create: (data: any, file?: File) =>
       file ? createWithFile<any>('/gallery', data, file) : request<any>('/gallery', { method: 'POST', body: JSON.stringify(data) }),
@@ -112,7 +128,13 @@ export const api = {
   },
 
   news: {
-    getAll: () => request<{ data: any[]; pagination: any }>('/news').then(r => r.data),
+    getAll: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', String(page));
+      if (limit) params.set('limit', String(limit));
+      const query = params.toString();
+      return request<PaginatedResponse<any>>(`/news${query ? `?${query}` : ''}`);
+    },
     getById: (id: string) => request<any>(`/news/${id}`),
     create: (data: any, file?: File) =>
       file ? createWithFile<any>('/news', data, file) : request<any>('/news', { method: 'POST', body: JSON.stringify(data) }),
@@ -122,7 +144,13 @@ export const api = {
   },
 
   events: {
-    getAll: () => request<{ data: any[]; pagination: any }>('/events').then(r => r.data),
+    getAll: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', String(page));
+      if (limit) params.set('limit', String(limit));
+      const query = params.toString();
+      return request<PaginatedResponse<any>>(`/events${query ? `?${query}` : ''}`);
+    },
     getById: (id: string) => request<any>(`/events/${id}`),
     create: (data: any, file?: File) =>
       file ? createWithFile<any>('/events', data, file) : request<any>('/events', { method: 'POST', body: JSON.stringify(data) }),
@@ -132,7 +160,13 @@ export const api = {
   },
 
   instructors: {
-    getAll: () => request<{ data: any[]; pagination: any }>('/instructors').then(r => r.data),
+    getAll: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', String(page));
+      if (limit) params.set('limit', String(limit));
+      const query = params.toString();
+      return request<PaginatedResponse<any>>(`/instructors${query ? `?${query}` : ''}`);
+    },
     getById: (id: string) => request<any>(`/instructors/${id}`),
     create: (data: any, file?: File) =>
       file ? createWithFile<any>('/instructors', data, file) : request<any>('/instructors', { method: 'POST', body: JSON.stringify(data) }),
@@ -142,7 +176,13 @@ export const api = {
   },
 
   graduates: {
-    getAll: () => request<{ data: any[]; pagination: any }>('/graduates').then(r => r.data),
+    getAll: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', String(page));
+      if (limit) params.set('limit', String(limit));
+      const query = params.toString();
+      return request<PaginatedResponse<any>>(`/graduates${query ? `?${query}` : ''}`);
+    },
     getById: (id: string) => request<any>(`/graduates/${id}`),
     search: (q: string) => request<any[]>(`/graduates/search?q=${encodeURIComponent(q)}`),
     verify: (code: string) => request<any>(`/graduates/verify/${encodeURIComponent(code)}`),

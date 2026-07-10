@@ -4,6 +4,7 @@ import { BookOpen, Calendar, User, ArrowUpRight, X, AlertCircle, ArrowLeft } fro
 import { motion, AnimatePresence } from 'motion/react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
+import LazyImage from './LazyImage';
 
 interface NewsSectionProps {
   news: NewsItem[];
@@ -90,14 +91,11 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
                 {/* Photo Header */}
                 {getImageUrl(item) && (
                   <div className="aspect-video w-full overflow-hidden bg-marine-950 relative">
-                    <img
+                    <LazyImage
                       src={getImageUrl(item)}
                       alt={item.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       referrerPolicy="no-referrer"
-                      loading="lazy"
-                      width={640}
-                      height={360}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-marine-950/60 to-transparent" />
                   </div>

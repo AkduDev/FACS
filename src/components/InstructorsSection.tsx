@@ -3,6 +3,7 @@ import { Instructor } from '../types';
 import { Award, Star, User } from 'lucide-react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
+import LazyImage from './LazyImage';
 
 interface InstructorsSectionProps {
   instructors: Instructor[];
@@ -50,14 +51,11 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
               >
                 {/* Photo & Badge header */}
                 <div className="aspect-4/3 sm:aspect-square w-full bg-marine-950 overflow-hidden relative">
-                  <img
+                  <LazyImage
                     src={getImageUrl(inst) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'}
                     alt={inst.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     referrerPolicy="no-referrer"
-                    loading="lazy"
-                    width={400}
-                    height={400}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-marine-950/80 via-marine-950/20 to-transparent" />
                   
