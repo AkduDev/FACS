@@ -2,8 +2,11 @@ export interface GalleryItem {
   id: string;
   url: string;
   title: string;
+  titleEn?: string;
   description: string;
-  category: 'fauna' | 'flora' | 'naufragios' | 'entrenamiento' | 'paisaje';
+  descriptionEn?: string;
+  category: string;
+  categoryEn?: string;
   date: string;
   localImage?: string;
 }
@@ -11,21 +14,28 @@ export interface GalleryItem {
 export interface NewsItem {
   id: string;
   title: string;
+  titleEn?: string;
   content: string;
+  contentEn?: string;
   date: string;
   image?: string;
   localImage?: string;
   author: string;
-  category: 'conservacion' | 'federacion' | 'seguridad' | 'exploracion';
+  category: string;
+  categoryEn?: string;
 }
 
 export interface EventItem {
   id: string;
   title: string;
+  titleEn?: string;
   date: string;
   location: string;
+  locationEn?: string;
   description: string;
-  category: 'competicion' | 'limpieza' | 'curso' | 'reunion';
+  descriptionEn?: string;
+  category: string;
+  categoryEn?: string;
   image?: string;
   localImage?: string;
 }
@@ -34,7 +44,9 @@ export interface Instructor {
   id: string;
   name: string;
   bio: string;
-  level: string; // e.g., CMAS * Instructor, Instructor de Especialidad
+  bioEn?: string;
+  level: string;
+  levelEn?: string;
   certificationCode: string;
   photo: string;
   localPhoto?: string;
@@ -45,7 +57,7 @@ export interface Graduate {
   id: string;
   name: string;
   certificationCode: string;
-  courseName: string; // e.g., Open Water Diver, Advanced, Rescue, Divemaster
+  courseName: string;
   graduationDate: string;
   instructorName: string;
   level: '1-star' | '2-star' | '3-star' | 'divemaster' | 'instructor';

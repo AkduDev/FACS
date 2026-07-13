@@ -8,47 +8,57 @@ datasource db {
 }
 
 model Gallery {
-  id          String   @id @default(cuid())
-  url         String
-  title       String
-  description String
-  category    String
-  date        DateTime
-  localImage  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  url             String
+  title           String
+  titleEn         String?
+  description     String
+  descriptionEn   String?
+  category        String
+  categoryEn      String?
+  date            DateTime
+  localImage      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([date])
   @@index([category])
 }
 
 model News {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  date      DateTime
-  image     String?
-  localImage String?
-  author    String
-  category  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  title         String
+  titleEn       String?
+  content       String
+  contentEn     String?
+  date          DateTime
+  image         String?
+  localImage    String?
+  author        String
+  category      String
+  categoryEn    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([date])
   @@index([category])
 }
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  date        DateTime
-  location    String
-  description String
-  category    String
-  image       String?
-  localImage  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  titleEn         String?
+  date            DateTime
+  location        String
+  locationEn      String?
+  description     String
+  descriptionEn   String?
+  category        String
+  categoryEn      String?
+  image           String?
+  localImage      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([date])
   @@index([category])
@@ -58,7 +68,9 @@ model Instructor {
   id                String   @id @default(cuid())
   name              String
   bio               String
+  bioEn             String?
   level             String
+  levelEn           String?
   certificationCode String   @unique
   photo             String
   localPhoto        String?

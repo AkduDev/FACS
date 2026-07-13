@@ -15,6 +15,11 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
   const [activePhoto, setActivePhoto] = useState<number | null>(null);
   const { lang } = useThemeLang();
 
+  const t = (es: string, en: string) => lang === 'es' ? es : en;
+  const itemTitle = (item: GalleryItem) => lang === 'en' && item.titleEn ? item.titleEn : item.title;
+  const itemDesc = (item: GalleryItem) => lang === 'en' && item.descriptionEn ? item.descriptionEn : item.description;
+  const itemCategory = (item: GalleryItem) => lang === 'en' && item.categoryEn ? item.categoryEn : item.category;
+
   useEffect(() => {
     if (activePhoto !== null) {
       document.body.style.overflow = 'hidden';
@@ -40,7 +45,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
 
   const filteredItems = selectedCategory === 'todos'
     ? items
-    : items.filter(item => item.category === selectedCategory);
+    : items.filter(item => item.category === selectedCategory || item.categoryEn?.toLowerCase().replace(/[^a-z]/g, '') === selectedCategory);
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -124,7 +129,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                 <div className="relative aspect-4/3 overflow-hidden">
                   <LazyImage
                     src={getImageUrl(item) || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'}
-                    alt={item.title}
+                    alt={itemTitle(item)}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
@@ -133,7 +138,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                   
                   {/* Floating category badge */}
                   <span className="absolute top-2 left-2 sm:top-4 sm:left-4 text-[8px] sm:text-[10px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 sm:px-3 sm:py-1 bg-marine-950/90 text-cyan-300 border border-cyan-800/40 rounded-full backdrop-blur-sm">
-                    {categories.find(c => c.id === item.category)?.label || item.category}
+                    {itemCategory(item) || item.category}
                   </span>
 
                   {/* Hover icon */}
@@ -147,10 +152,10 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                 {/* Info block */}
                 <div className="p-3 sm:p-6">
                   <h3 className="font-display font-bold text-sm sm:text-lg text-white group-hover:text-cyan-300 transition-colors duration-200 line-clamp-1">
-                    {item.title}
+                    {itemTitle(item)}
                   </h3>
                   <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-marine-200/80 line-clamp-1 sm:line-clamp-2 leading-relaxed">
-                    {item.description}
+                    {itemDesc(item)}
                   </p>
                   <div className="mt-2.5 sm:mt-4 pt-2.5 sm:pt-4 border-t border-marine-800/60 flex items-center justify-between text-[10px] sm:text-xs text-marine-400">
                     <span className="flex items-center space-x-1 sm:space-x-1.5">
@@ -228,7 +233,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                   <div className="relative overflow-hidden flex-1 bg-black flex items-center justify-center p-2">
                     <img
                       src={getImageUrl(filteredItems[activePhoto]) || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'}
-                      alt={filteredItems[activePhoto].title}
+                      alt={itemTitle(filteredItems[activePhoto])}
                       className="max-h-[30vh] xs:max-h-[35vh] sm:max-h-[45vh] w-auto max-w-full object-contain rounded-lg"
                       referrerPolicy="no-referrer"
                     />
@@ -238,7 +243,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                   <div className="p-4 sm:p-6 bg-gradient-to-b from-marine-900 to-marine-950 border-t border-marine-800/40">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3">
                       <span className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 sm:px-3 sm:py-1 bg-cyan-950 text-cyan-400 border border-cyan-800/50 rounded-full">
-                        {categories.find(c => c.id === filteredItems[activePhoto].category)?.label || filteredItems[activePhoto].category}
+                        {itemCategory(filteredItems[activePhoto]) || filteredItems[activePhoto].category}
                       </span>
                       <span className="text-[10px] sm:text-xs text-marine-400 flex items-center space-x-1 sm:space-x-1.5">
                         <Calendar className="h-3.5 w-3.5" />
@@ -249,10 +254,10 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                     </div>
 
                     <h3 className="text-base sm:text-xl font-display font-bold text-white mb-1 sm:mb-2 leading-tight">
-                      {filteredItems[activePhoto].title}
+                      {itemTitle(filteredItems[activePhoto])}
                     </h3>
                     <p className="text-xs sm:text-sm text-marine-200 leading-relaxed line-clamp-3 sm:line-clamp-none">
-                      {filteredItems[activePhoto].description}
+                      {itemDesc(filteredItems[activePhoto])}
                     </p>
                   </div>
                 </motion.div>

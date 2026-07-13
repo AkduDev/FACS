@@ -14,6 +14,9 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
   const [activeInstructor, setActiveInstructor] = useState<Instructor | null>(null);
   const { lang } = useThemeLang();
 
+  const instBio = (inst: Instructor) => lang === 'en' && inst.bioEn ? inst.bioEn : inst.bio;
+  const instLevel = (inst: Instructor) => lang === 'en' && inst.levelEn ? inst.levelEn : inst.level;
+
   useEffect(() => {
     if (activeInstructor !== null) {
       document.body.style.overflow = 'hidden';
@@ -88,7 +91,7 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
                   <div>
                     {/* Level Label */}
                     <span className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-cyan-400 block mb-1 sm:mb-2">
-                      {inst.level}
+                      {instLevel(inst)}
                     </span>
 
                     {/* Name */}
@@ -98,7 +101,7 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
 
                     {/* Bio */}
                     <p className="mt-1.5 sm:mt-3.5 text-xs sm:text-base text-marine-200/80 leading-relaxed font-sans line-clamp-2 sm:line-clamp-none">
-                      {inst.bio}
+                      {instBio(inst)}
                     </p>
                   </div>
 
@@ -168,7 +171,7 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
                   <div className="absolute inset-0 bg-gradient-to-t from-marine-900 via-marine-900/40 to-transparent" />
                   <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-6">
                     <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border bg-marine-900 border-marine-700/60 text-cyan-400 shadow-sm">
-                      {activeInstructor.level}
+                      {instLevel(activeInstructor)}
                     </span>
                   </div>
                 </div>
@@ -192,7 +195,7 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
 
                   {/* Full Bio */}
                   <div className="text-marine-200 space-y-3 sm:space-y-4 text-xs sm:text-sm sm:text-base leading-relaxed whitespace-pre-line font-sans flex-1 mb-6">
-                    {activeInstructor.bio || (lang === 'es' ? 'Biografía no disponible.' : 'Biography not available.')}
+                    {instBio(activeInstructor) || (lang === 'es' ? 'Biografía no disponible.' : 'Biography not available.')}
                   </div>
 
                   {/* Footer */}

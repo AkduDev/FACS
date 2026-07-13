@@ -13,6 +13,11 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
   const [activeEvent, setActiveEvent] = useState<EventItem | null>(null);
   const { lang } = useThemeLang();
 
+  const itemTitle = (item: EventItem) => lang === 'en' && item.titleEn ? item.titleEn : item.title;
+  const itemDesc = (item: EventItem) => lang === 'en' && item.descriptionEn ? item.descriptionEn : item.description;
+  const itemLocation = (item: EventItem) => lang === 'en' && item.locationEn ? item.locationEn : item.location;
+  const itemCategory = (item: EventItem) => lang === 'en' && item.categoryEn ? item.categoryEn : item.category;
+
   useEffect(() => {
     if (activeEvent !== null) {
       document.body.style.overflow = 'hidden';
@@ -134,18 +139,18 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                         {getCategoryBadge(event.category)}
                         <span className="text-xs text-marine-300 flex items-center space-x-1">
                           <MapPin className="h-3.5 w-3.5 text-cyan-400" />
-                          <span className="truncate max-w-[150px]">{event.location}</span>
+                          <span className="truncate max-w-[150px]">{itemLocation(event)}</span>
                         </span>
                       </div>
 
                       {/* Event Title */}
                       <h3 className="text-base sm:text-xl font-display font-extrabold text-white hover:text-cyan-300 transition-colors">
-                        {event.title}
+                        {itemTitle(event)}
                       </h3>
 
                       {/* Event Description */}
                       <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-marine-200 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                        {event.description}
+                        {itemDesc(event)}
                       </p>
                     </div>
 
@@ -237,7 +242,7 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                     />
                     <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-6">
                       <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border bg-marine-900 border-marine-700/60 text-cyan-400 shadow-sm">
-                        {getCategoryLabel(activeEvent.category)}
+                        {itemCategory(activeEvent)}
                       </span>
                     </div>
                   </div>
@@ -252,22 +257,22 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                     </span>
                     <span className="flex items-center space-x-1.5">
                       <MapPin className="h-3.5 w-3.5 text-cyan-400" />
-                      <span>{activeEvent.location}</span>
+                      <span>{itemLocation(activeEvent)}</span>
                     </span>
                     <span className="flex items-center space-x-1.5">
                       <Tag className="h-3.5 w-3.5 text-cyan-400" />
-                      <span>{getCategoryLabel(activeEvent.category)}</span>
+                      <span>{itemCategory(activeEvent)}</span>
                     </span>
                   </div>
 
                   {/* Main Title */}
                   <h3 className="text-lg sm:text-3xl font-display font-extrabold text-white mb-3 sm:mb-6 leading-tight shrink-0">
-                    {activeEvent.title}
+                    {itemTitle(activeEvent)}
                   </h3>
 
                   {/* Full Description */}
                   <div className="text-marine-200 space-y-3 sm:space-y-4 text-xs sm:text-sm sm:text-base leading-relaxed whitespace-pre-line font-sans flex-1 mb-6">
-                    {activeEvent.description || (lang === 'es' ? 'Sin descripción disponible.' : 'No description available.')}
+                    {itemDesc(activeEvent) || (lang === 'es' ? 'Sin descripción disponible.' : 'No description available.')}
                   </div>
 
                   {/* Registration info */}

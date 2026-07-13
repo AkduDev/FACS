@@ -14,6 +14,10 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
   const [activeArticle, setActiveArticle] = useState<NewsItem | null>(null);
   const { lang, t } = useThemeLang();
 
+  const itemTitle = (item: NewsItem) => lang === 'en' && item.titleEn ? item.titleEn : item.title;
+  const itemContent = (item: NewsItem) => lang === 'en' && item.contentEn ? item.contentEn : item.content;
+  const itemCategory = (item: NewsItem) => lang === 'en' && item.categoryEn ? item.categoryEn : item.category;
+
   useEffect(() => {
     if (activeArticle !== null) {
       document.body.style.overflow = 'hidden';
@@ -105,8 +109,8 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
                 <div className="p-3 sm:p-6 flex-1 flex flex-col">
                   {/* Category & Date */}
                   <div className="flex items-center justify-between mb-2.5 sm:mb-4">
-                    <span className={`text-[8px] sm:text-[10px] uppercase font-extrabold tracking-wider px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full border ${getCategoryColor(item.category)}`}>
-                      {getCategoryLabel(item.category)}
+                      <span className={`text-[8px] sm:text-[10px] uppercase font-extrabold tracking-wider px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full border ${getCategoryColor(item.category)}`}>
+                      {itemCategory(item)}
                     </span>
                     <span className="text-[9px] sm:text-xs text-marine-300 flex items-center space-x-1">
                       <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -116,12 +120,12 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
 
                   {/* Title */}
                   <h3 className="font-display font-extrabold text-sm sm:text-xl text-white group-hover:text-cyan-400 transition-colors duration-200 leading-tight line-clamp-2">
-                    {item.title}
+                    {itemTitle(item)}
                   </h3>
 
                   {/* Snippet */}
                   <p className="mt-1.5 sm:mt-3 text-xs sm:text-sm text-marine-200/80 line-clamp-2 sm:line-clamp-3 leading-relaxed flex-1">
-                    {item.content}
+                    {itemContent(item)}
                   </p>
 
                   {/* Card Footer */}
@@ -189,7 +193,7 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
                       />
                       <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-6">
                         <span className={`text-[8px] sm:text-[10px] uppercase font-extrabold tracking-wider px-2 py-1 sm:px-3 sm:py-1.5 rounded-full border bg-marine-900 border-marine-700/60 text-cyan-400 shadow-sm`}>
-                          {getCategoryLabel(activeArticle.category)}
+                          {itemCategory(activeArticle)}
                         </span>
                       </div>
                     </div>
@@ -210,12 +214,12 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
 
                     {/* Main Title */}
                     <h3 className="text-lg sm:text-3xl font-display font-extrabold text-white mb-3 sm:mb-6 leading-tight shrink-0">
-                      {activeArticle.title}
+                      {itemTitle(activeArticle)}
                     </h3>
 
                     {/* Full Text Content */}
                     <div className="text-marine-200 space-y-3 sm:space-y-4 text-xs xs:text-sm sm:text-base leading-relaxed whitespace-pre-line font-sans flex-1 mb-6">
-                      {activeArticle.content}
+                      {itemContent(activeArticle)}
                     </div>
 
                     {/* Footer disclaimer */}
