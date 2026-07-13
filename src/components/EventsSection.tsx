@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { EventItem } from '../types';
-import { MapPin, Compass } from 'lucide-react';
+import { MapPin, Compass, Calendar, ArrowLeft, X, Tag } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -9,7 +10,22 @@ interface EventsSectionProps {
 }
 
 export default React.memo(function EventsSection({ events }: EventsSectionProps) {
+  const [activeEvent, setActiveEvent] = useState<EventItem | null>(null);
   const { lang } = useThemeLang();
+
+  useEffect(() => {
+    if (activeEvent !== null) {
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setActiveEvent(null);
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [activeEvent]);
 
   const getCategoryBadge = (cat: string) => {
     switch (cat) {
@@ -26,22 +42,40 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const parts = dateString.split('-');
-    if (parts.length === 3) {
-      const year = parts[0];
-      const monthNum = parseInt(parts[1], 10);
-      const day = parts[2];
-      const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-      const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const months = lang === 'es' ? monthsEs : monthsEn;
-      return {
-        day,
-        month: months[monthNum - 1] || (lang === 'es' ? 'Mes' : 'Month'),
-        year
-      };
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'competicion': return lang === 'es' ? 'Competencia' : 'Competition';
+      case 'limpieza': return lang === 'es' ? 'Ecológico' : 'Ecological';
+      case 'curso': return lang === 'es' ? 'Curso / Taller' : 'Course / Workshop';
+      case 'reunion': return lang === 'es' ? 'Reunión' : 'Meeting';
+      default: return cat;
     }
-    return { day: '00', month: lang === 'es' ? 'Mes' : 'Month', year: '2026' };
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getUTCDate().toString().padStart(2, '0');
+    const monthNum = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear().toString();
+    const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = lang === 'es' ? monthsEs : monthsEn;
+    return {
+      day,
+      month: months[monthNum - 1] || (lang === 'es' ? 'Mes' : 'Month'),
+      year
+    };
+  };
+
+  const formatFullDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getUTCDate();
+    const monthNum = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear();
+    const monthsEs = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = lang === 'es' ? monthsEs : monthsEn;
+    return `${day} de ${months[monthNum - 1]} de ${year}`;
   };
 
   return (
@@ -78,7 +112,7 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 relative">
-            {events.map((event, index) => {
+            {events.map((event) => {
               const { day, month, year } = formatDate(event.date);
               return (
                 <div
@@ -86,22 +120,14 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                   className="flex flex-col sm:flex-row bg-marine-900/40 hover:bg-marine-800/50 rounded-3xl border border-marine-800/80 hover:border-cyan-500/30 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-cyan-950/20 p-3.5 sm:p-5 gap-3 sm:gap-6"
                 >
                   {/* Calendar Widget */}
-                  <div className="flex sm:flex-col items-center sm:justify-center justify-between bg-gradient-to-br from-cyan-600 to-marine-700 rounded-2xl px-4 py-2 sm:p-4 w-full sm:w-28 sm:h-28 text-center shrink-0 shadow-md">
-                    <div className="flex items-baseline space-x-2 sm:block">
-                      <span className="text-2xl sm:text-4xl font-display font-black tracking-tight text-white">
-                        {day}
-                      </span>
-                      <span className="text-xs font-bold uppercase tracking-widest text-cyan-100 block sm:mt-1">
-                        {month}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-cyan-200 block">
-                      {year}
+                  <div className="flex sm:flex-col items-center sm:justify-center justify-center bg-gradient-to-br from-cyan-600 to-marine-700 rounded-2xl px-4 py-3 sm:p-4 w-full sm:w-auto sm:min-w-28 text-center shrink-0 shadow-md overflow-hidden">
+                    <span className="text-sm sm:text-base font-display font-bold text-white whitespace-nowrap">
+                      {day}, {month} {year}
                     </span>
                   </div>
 
                   {/* Text Details */}
-                  <div className="flex-1 flex flex-col justify-between">
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
                       {/* Meta Tags */}
                       <div className="flex items-center space-x-2 mb-2 sm:mb-3">
@@ -128,13 +154,13 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                       <span className="text-[10px] sm:text-xs text-marine-400 truncate max-w-[160px] sm:max-w-none">
                         {lang === 'es' ? 'Inscripciones a través de tu centro provincial FCAS' : 'Registrations through your local provincial FCAS center'}
                       </span>
-                      <a
-                        href="#inicio"
+                      <button
+                        onClick={() => setActiveEvent(event)}
                         className="text-[10px] sm:text-xs font-bold text-cyan-300 hover:text-white flex items-center space-x-1 cursor-pointer shrink-0"
                       >
                         <span>{lang === 'es' ? 'Más info' : 'More info'}</span>
                         <span>→</span>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -162,6 +188,101 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
         </div>
 
       </div>
+
+      {/* Modal Dialog for Event Detail */}
+      <AnimatePresence>
+        {activeEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-marine-950/96 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.25 }}
+              className="bg-marine-900 rounded-2xl sm:rounded-3xl max-w-[92%] sm:max-w-2xl w-full max-h-[80vh] sm:max-h-[85vh] overflow-hidden shadow-2xl border border-marine-800 text-white relative flex flex-col"
+            >
+              {/* Close/Back button bar */}
+              <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-marine-800/60 bg-marine-950/80 backdrop-blur-md z-20 shrink-0">
+                <button
+                  onClick={() => setActiveEvent(null)}
+                  className="px-3.5 py-1.5 rounded-full bg-marine-900 hover:bg-cyan-600 text-white cursor-pointer transition-all text-xs font-semibold flex items-center space-x-1.5 border border-marine-800 shadow-md"
+                  title={lang === 'es' ? 'Volver' : 'Back'}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>{lang === 'es' ? 'Atrás' : 'Back'}</span>
+                </button>
+                
+                <span className="text-xs sm:text-sm font-bold tracking-widest text-cyan-400 uppercase font-display hidden sm:block">
+                  {lang === 'es' ? 'DETALLES DEL EVENTO' : 'EVENT DETAILS'}
+                </span>
+
+                <button
+                  onClick={() => setActiveEvent(null)}
+                  className="p-2 rounded-full bg-marine-900 hover:bg-cyan-600 text-white cursor-pointer transition-all border border-marine-800 shadow-md"
+                  title={lang === 'es' ? 'Cerrar' : 'Close'}
+                >
+                  <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                </button>
+              </div>
+
+              {/* Main Body */}
+              <div className="flex-1 overflow-y-auto flex flex-col">
+                {/* Image Header if available */}
+                {getImageUrl(activeEvent) && (
+                  <div className="h-28 sm:h-auto sm:aspect-video w-full overflow-hidden bg-marine-950 relative shrink-0">
+                    <img
+                      src={getImageUrl(activeEvent)}
+                      alt={activeEvent.title}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-6">
+                      <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border bg-marine-900 border-marine-700/60 text-cyan-400 shadow-sm">
+                        {getCategoryLabel(activeEvent.category)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className={`p-4 sm:p-8 flex-1 flex flex-col ${!getImageUrl(activeEvent) ? 'pt-6' : ''}`}>
+                  {/* Metadata line */}
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-marine-300 mb-3 sm:mb-5 shrink-0">
+                    <span className="flex items-center space-x-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-cyan-400" />
+                      <span>{formatFullDate(activeEvent.date)}</span>
+                    </span>
+                    <span className="flex items-center space-x-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-cyan-400" />
+                      <span>{activeEvent.location}</span>
+                    </span>
+                    <span className="flex items-center space-x-1.5">
+                      <Tag className="h-3.5 w-3.5 text-cyan-400" />
+                      <span>{getCategoryLabel(activeEvent.category)}</span>
+                    </span>
+                  </div>
+
+                  {/* Main Title */}
+                  <h3 className="text-lg sm:text-3xl font-display font-extrabold text-white mb-3 sm:mb-6 leading-tight shrink-0">
+                    {activeEvent.title}
+                  </h3>
+
+                  {/* Full Description */}
+                  <div className="text-marine-200 space-y-3 sm:space-y-4 text-xs sm:text-sm sm:text-base leading-relaxed whitespace-pre-line font-sans flex-1 mb-6">
+                    {activeEvent.description || (lang === 'es' ? 'Sin descripción disponible.' : 'No description available.')}
+                  </div>
+
+                  {/* Registration info */}
+                  <div className="mt-auto pt-4 border-t border-marine-800/60 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-xs text-marine-400 shrink-0">
+                    <span>{lang === 'es' ? 'Inscripciones a través de tu centro provincial FCAS' : 'Registrations through your local provincial FCAS center'}</span>
+                    <span>{lang === 'es' ? 'ID' : 'ID'}: {activeEvent.id}</span>
+                  </div>
+                </div>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </section>
   );
 });

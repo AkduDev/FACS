@@ -11,28 +11,33 @@ interface ImageSource {
   localPhoto?: string;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
+function resolveUrl(path: string): string {
+  if (!API_URL || path.startsWith('http')) return path;
+  return `${API_URL}${path}`;
+}
+
 /**
  * Returns the best available image URL for an item
  * Priority: localImage/localPhoto > url/image/photo
  */
 export function getImageUrl(item: ImageSource): string | null {
-  // Check for local images first (uploaded via file upload)
   if (item.localImage && item.localImage.trim() !== '') {
-    return item.localImage;
+    return resolveUrl(item.localImage);
   }
   if (item.localPhoto && item.localPhoto.trim() !== '') {
-    return item.localPhoto;
+    return resolveUrl(item.localPhoto);
   }
 
-  // Fall back to external URLs
   if (item.url && item.url.trim() !== '') {
-    return item.url;
+    return resolveUrl(item.url);
   }
   if (item.image && item.image.trim() !== '') {
-    return item.image;
+    return resolveUrl(item.image);
   }
   if (item.photo && item.photo.trim() !== '') {
-    return item.photo;
+    return resolveUrl(item.photo);
   }
 
   return null;
@@ -53,5 +58,6 @@ export function getImageUrlWithFallback(
  */
 export function isLocalImage(url: string | null | undefined): boolean {
   if (!url) return false;
-  return url.startsWith('/uploads/');
+  const resolved = resolveUrl(url);
+  return resolved.includes('/uploads/');
 }

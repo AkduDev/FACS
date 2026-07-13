@@ -21,47 +21,57 @@ type SyncableSetter<T> = (value: React.SetStateAction<T[]>, file?: File) => void
 function useSyncedState<T extends { id: string }>(
   initialState: T[],
   syncFn: (action: 'add' | 'update' | 'delete', item?: T, id?: string, file?: File) => Promise<void>,
+  fetchFn: () => Promise<T[]>,
   hasChanges?: (prev: T, next: T) => boolean
-): [T[], SyncableSetter<T>, (data: T[]) => void] {
+): [T[], SyncableSetter<T>] {
   const [state, setState] = useState<T[]>(initialState);
-  const stateRef = useRef(state);
-  stateRef.current = state;
   const isInitialLoadRef = useRef(true);
+  const isSyncingRef = useRef(false);
+
+  const refreshFromServer = useCallback(async () => {
+    try {
+      const data = await fetchFn();
+      setState(data);
+    } catch (err) {
+      console.error("Error refreshing from server:", err);
+    }
+  }, [fetchFn]);
 
   const setSynced: SyncableSetter<T> = useCallback((value, file?) => {
     setState(prev => {
       const next = typeof value === 'function' ? (value as (prev: T[]) => T[])(prev) : value;
-      
-      // Saltar sincronización durante la carga inicial
+
       if (isInitialLoadRef.current) {
         return next;
       }
 
       const operation = detectSyncOperation(prev, next, hasChanges);
-      if (operation) {
-        if (operation.action === 'delete' && operation.id) {
-          syncFn('delete', undefined, operation.id);
-        } else if (operation.action === 'add' && operation.item) {
-          syncFn('add', operation.item, undefined, file);
-        } else if (operation.action === 'update' && operation.item) {
-          syncFn('update', operation.item, undefined, file);
-        }
+      if (operation && !isSyncingRef.current) {
+        isSyncingRef.current = true;
+        syncFn(
+          operation.action,
+          operation.item,
+          operation.id,
+          file
+        ).finally(() => {
+          isSyncingRef.current = false;
+          // Re-fetch from server after mutation to stay in sync
+          refreshFromServer();
+        });
       }
       return next;
     });
-  }, [syncFn, hasChanges]);
+  }, [syncFn, hasChanges, refreshFromServer]);
 
-  // Función para cargar datos iniciales sin sincronizar
   const loadData = useCallback((data: T[]) => {
     isInitialLoadRef.current = true;
     setState(data);
-    // Permitir sincronización después del siguiente render
     requestAnimationFrame(() => {
       isInitialLoadRef.current = false;
     });
   }, []);
 
-  return [state, setSynced, loadData] as [T[], SyncableSetter<T>, (data: T[]) => void];
+  return [state, setSynced];
 }
 
 export default function App() {
@@ -69,86 +79,97 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => api.auth.isLoggedIn());
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const [gallery, setGallery, loadGallery] = useSyncedState<GalleryItem>(
+  const fetchGallery = useCallback(async (): Promise<GalleryItem[]> => {
+    const res = await api.gallery.getAll(1, 100);
+    return res.data;
+  }, []);
+
+  const fetchNews = useCallback(async (): Promise<NewsItem[]> => {
+    const res = await api.news.getAll(1, 100);
+    return res.data;
+  }, []);
+
+  const fetchEvents = useCallback(async (): Promise<EventItem[]> => {
+    const res = await api.events.getAll(1, 100);
+    return res.data;
+  }, []);
+
+  const fetchInstructors = useCallback(async (): Promise<Instructor[]> => {
+    const res = await api.instructors.getAll(1, 100);
+    return res.data;
+  }, []);
+
+  const fetchGraduates = useCallback(async (): Promise<Graduate[]> => {
+    const res = await api.graduates.getAll(1, 100);
+    return res.data;
+  }, []);
+
+  const [gallery, setGallery] = useSyncedState<GalleryItem>(
     [],
     useCallback(async (action, item, id, file) => {
-      try {
-        if (action === 'add' && item) await api.gallery.create(item, file);
-        else if (action === 'update' && item) await api.gallery.update(item.id, item, file);
-        else if (action === 'delete' && id) await api.gallery.delete(id);
-      } catch (err) {
-        console.error("Gallery sync error:", err);
-      }
-    }, [])
+      if (action === 'add' && item) await api.gallery.create(item, file);
+      else if (action === 'update' && item) await api.gallery.update(item.id, item, file);
+      else if (action === 'delete' && id) await api.gallery.delete(id);
+    }, []),
+    fetchGallery
   );
 
-  const [news, setNews, loadNews] = useSyncedState<NewsItem>(
+  const [news, setNews] = useSyncedState<NewsItem>(
     [],
     useCallback(async (action, item, id, file) => {
-      try {
-        if (action === 'add' && item) await api.news.create(item, file);
-        else if (action === 'update' && item) await api.news.update(item.id, item, file);
-        else if (action === 'delete' && id) await api.news.delete(id);
-      } catch (err) {
-        console.error("News sync error:", err);
-      }
-    }, [])
+      if (action === 'add' && item) await api.news.create(item, file);
+      else if (action === 'update' && item) await api.news.update(item.id, item, file);
+      else if (action === 'delete' && id) await api.news.delete(id);
+    }, []),
+    fetchNews
   );
 
-  const [events, setEvents, loadEvents] = useSyncedState<EventItem>(
+  const [events, setEvents] = useSyncedState<EventItem>(
     [],
     useCallback(async (action, item, id, file) => {
-      try {
-        if (action === 'add' && item) await api.events.create(item, file);
-        else if (action === 'update' && item) await api.events.update(item.id, item, file);
-        else if (action === 'delete' && id) await api.events.delete(id);
-      } catch (err) {
-        console.error("Events sync error:", err);
-      }
-    }, [])
+      if (action === 'add' && item) await api.events.create(item, file);
+      else if (action === 'update' && item) await api.events.update(item.id, item, file);
+      else if (action === 'delete' && id) await api.events.delete(id);
+    }, []),
+    fetchEvents
   );
 
-  const [instructors, setInstructors, loadInstructors] = useSyncedState<Instructor>(
+  const [instructors, setInstructors] = useSyncedState<Instructor>(
     [],
     useCallback(async (action, item, id, file) => {
-      try {
-        if (action === 'add' && item) await api.instructors.create(item, file);
-        else if (action === 'update' && item) await api.instructors.update(item.id, item, file);
-        else if (action === 'delete' && id) await api.instructors.delete(id);
-      } catch (err) {
-        console.error("Instructors sync error:", err);
-      }
-    }, [])
+      if (action === 'add' && item) await api.instructors.create(item, file);
+      else if (action === 'update' && item) await api.instructors.update(item.id, item, file);
+      else if (action === 'delete' && id) await api.instructors.delete(id);
+    }, []),
+    fetchInstructors
   );
 
-  const [graduates, setGraduates, loadGraduates] = useSyncedState<Graduate>(
+  const [graduates, setGraduates] = useSyncedState<Graduate>(
     [],
     useCallback(async (action, item, id) => {
-      try {
-        if (action === 'add' && item) await api.graduates.create(item);
-        else if (action === 'update' && item) await api.graduates.update(item.id, item);
-        else if (action === 'delete' && id) await api.graduates.delete(id);
-      } catch (err) {
-        console.error("Graduates sync error:", err);
-      }
-    }, [])
+      if (action === 'add' && item) await api.graduates.create(item);
+      else if (action === 'update' && item) await api.graduates.update(item.id, item);
+      else if (action === 'delete' && id) await api.graduates.delete(id);
+    }, []),
+    fetchGraduates
   );
 
+  // Initial data load
   useEffect(() => {
     const fetchData = async () => {
       try {
         const results = await Promise.allSettled([
-          api.gallery.getAll(1, 100),
-          api.news.getAll(1, 100),
-          api.events.getAll(1, 100),
-          api.instructors.getAll(1, 100),
-          api.graduates.getAll(1, 100),
+          fetchGallery(),
+          fetchNews(),
+          fetchEvents(),
+          fetchInstructors(),
+          fetchGraduates(),
         ]);
-        if (results[0].status === "fulfilled") loadGallery(results[0].value.data);
-        if (results[1].status === "fulfilled") loadNews(results[1].value.data);
-        if (results[2].status === "fulfilled") loadEvents(results[2].value.data);
-        if (results[3].status === "fulfilled") loadInstructors(results[3].value.data);
-        if (results[4].status === "fulfilled") loadGraduates(results[4].value.data);
+        if (results[0].status === "fulfilled") setGallery(results[0].value);
+        if (results[1].status === "fulfilled") setNews(results[1].value);
+        if (results[2].status === "fulfilled") setEvents(results[2].value);
+        if (results[3].status === "fulfilled") setInstructors(results[3].value);
+        if (results[4].status === "fulfilled") setGraduates(results[4].value);
       } catch (err) {
         console.error("Error fetching data from API:", err);
       } finally {
@@ -157,6 +178,29 @@ export default function App() {
     };
     fetchData();
   }, []);
+
+  // Polling: refresh data every 30s to reflect changes from other sessions
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const results = await Promise.allSettled([
+          fetchGallery(),
+          fetchNews(),
+          fetchEvents(),
+          fetchInstructors(),
+          fetchGraduates(),
+        ]);
+        if (results[0].status === "fulfilled") setGallery(results[0].value);
+        if (results[1].status === "fulfilled") setNews(results[1].value);
+        if (results[2].status === "fulfilled") setEvents(results[2].value);
+        if (results[3].status === "fulfilled") setInstructors(results[3].value);
+        if (results[4].status === "fulfilled") setGraduates(results[4].value);
+      } catch {
+        // Silent fail for polling — user won't notice
+      }
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [fetchGallery, fetchNews, fetchEvents, fetchInstructors, fetchGraduates]);
 
   const handleLogin = useCallback(async (password: string): Promise<boolean> => {
     try {
