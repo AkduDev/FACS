@@ -7,6 +7,7 @@ import { loginSchema } from "../validators/auth.validator.js";
 const router = Router();
 
 router.post("/login", validate(loginSchema), authController.login);
+router.post("/refresh", authController.refresh);
 router.get("/me", authMiddleware, authController.me);
 
 export default router;

@@ -1,6 +1,12 @@
 import fs from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import { createError } from "../middleware/errorHandler.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const SERVER_ROOT = path.join(__dirname, "..", "..");
 
 export interface UploadedFile {
   filename: string;
@@ -27,7 +33,7 @@ export class UploadService {
   private baseUploadPath: string;
 
   constructor() {
-    this.baseUploadPath = path.join(process.cwd(), "uploads");
+    this.baseUploadPath = path.join(SERVER_ROOT, "uploads");
   }
 
   async processUploadedFile(

@@ -1,5 +1,12 @@
 import dotenv from "dotenv";
-dotenv.config();
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const SERVER_ROOT = path.join(__dirname, "..");
+
+dotenv.config({ path: path.join(SERVER_ROOT, ".env") });
 
 import { prisma } from "./lib/prisma.js";
 import express from "express";
@@ -66,7 +73,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 // Static files - Serve uploaded files
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(path.join(SERVER_ROOT, "uploads")));
 
 // API Routes
 app.use("/api", apiRoutes);
@@ -90,9 +97,18 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
-// 404 handler for unknown routes
+// 404 handler for unknown API routes
 app.use("/api/*", (_req, res) => {
   res.status(404).json({ error: "API endpoint not found" });
+});
+
+// Serve frontend in production
+const clientDistPath = path.join(SERVER_ROOT, "..", "dist");
+app.use(express.static(clientDistPath));
+
+// SPA fallback - serve index.html for all non-API, non-static routes
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(clientDistPath, "index.html"));
 });
 
 // Error handling middleware (must be last)
@@ -100,7 +116,7 @@ app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   console.log(`FCAS API Server running on http://localhost:${PORT}`);
-  console.log(`Uploads directory: ${path.join(process.cwd(), "uploads")}`);
+  console.log(`Uploads directory: ${path.join(SERVER_ROOT, "uploads")}`);
 });
 
 // Graceful shutdown

@@ -1,7 +1,13 @@
 import multer from "multer";
 import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import { Request } from "express";
 import { createError } from "./errorHandler.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const SERVER_ROOT = path.join(__dirname, "..", "..");
 
 // Tipos de archivo permitidos
 const ALLOWED_IMAGE_TYPES = [
@@ -27,9 +33,9 @@ const storage = multer.diskStorage({
   ) => {
     // Determinar carpeta según tipo de archivo
     if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
-      cb(null, path.join(process.cwd(), "uploads", "images"));
+      cb(null, path.join(SERVER_ROOT, "uploads", "images"));
     } else if (ALLOWED_DOCUMENT_TYPES.includes(file.mimetype)) {
-      cb(null, path.join(process.cwd(), "uploads", "documents"));
+      cb(null, path.join(SERVER_ROOT, "uploads", "documents"));
     } else {
       cb(createError("Tipo de archivo no permitido", 400), "");
     }

@@ -1,16 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { ImageIcon } from 'lucide-react';
 
 interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
   fallbackSrc?: string;
+  className?: string;
+  referrerPolicy?: React.ReferrerPolicy;
+  showPlaceholder?: boolean;
 }
 
-export default function LazyImage({ src, alt, fallbackSrc, className, ...props }: LazyImageProps) {
+export default function LazyImage({ 
+  src, 
+  alt, 
+  fallbackSrc, 
+  className = '', 
+  showPlaceholder = true,
+  ...props 
+}: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -20,7 +31,7 @@ export default function LazyImage({ src, alt, fallbackSrc, className, ...props }
           observer.disconnect();
         }
       },
-      { rootMargin: '100px' }
+      { rootMargin: '200px' }
     );
 
     if (imgRef.current) {
@@ -41,10 +52,12 @@ export default function LazyImage({ src, alt, fallbackSrc, className, ...props }
   const displaySrc = hasError && fallbackSrc ? fallbackSrc : src;
 
   return (
-    <div ref={imgRef} className={`relative overflow-hidden ${className || ''}`}>
+    <div ref={imgRef} className={`relative overflow-hidden bg-marine-800/30 ${className}`}>
       {/* Placeholder */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+      {showPlaceholder && !isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-marine-800/30">
+          <ImageIcon className="h-8 w-8 text-marine-600 animate-pulse" />
+        </div>
       )}
       
       {/* Actual image */}
@@ -54,7 +67,9 @@ export default function LazyImage({ src, alt, fallbackSrc, className, ...props }
           alt={alt}
           onLoad={handleLoad}
           onError={handleError}
-          className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className || ''}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           loading="lazy"
           {...props}
         />

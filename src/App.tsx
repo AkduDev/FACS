@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import Navbar from './components/Navbar';
 import LandingPage from './components/LandingPage';
+import { ToastProvider } from './components/Toast';
 import { GalleryItem, NewsItem, EventItem, Instructor, Graduate } from './types';
 import { api } from './api';
 import { detectSyncOperation, shallowEqual } from './utils/syncUtils';
@@ -21,7 +22,7 @@ function useSyncedState<T extends { id: string }>(
   initialState: T[],
   syncFn: (action: 'add' | 'update' | 'delete', item?: T, id?: string, file?: File) => Promise<void>,
   hasChanges?: (prev: T, next: T) => boolean
-): [T[], SyncableSetter<T>] {
+): [T[], SyncableSetter<T>, (data: T[]) => void] {
   const [state, setState] = useState<T[]>(initialState);
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -143,11 +144,11 @@ export default function App() {
           api.instructors.getAll(1, 100),
           api.graduates.getAll(1, 100),
         ]);
-        if (results[0].status === "fulfilled") loadGallery((results[0] as PromiseFulfilledResult<{ data: GalleryItem[] }>).value.data);
-        if (results[1].status === "fulfilled") loadNews((results[1] as PromiseFulfilledResult<{ data: NewsItem[] }>).value.data);
-        if (results[2].status === "fulfilled") loadEvents((results[2] as PromiseFulfilledResult<{ data: EventItem[] }>).value.data);
-        if (results[3].status === "fulfilled") loadInstructors((results[3] as PromiseFulfilledResult<{ data: Instructor[] }>).value.data);
-        if (results[4].status === "fulfilled") loadGraduates((results[4] as PromiseFulfilledResult<{ data: Graduate[] }>).value.data);
+        if (results[0].status === "fulfilled") loadGallery(results[0].value.data);
+        if (results[1].status === "fulfilled") loadNews(results[1].value.data);
+        if (results[2].status === "fulfilled") loadEvents(results[2].value.data);
+        if (results[3].status === "fulfilled") loadInstructors(results[3].value.data);
+        if (results[4].status === "fulfilled") loadGraduates(results[4].value.data);
       } catch (err) {
         console.error("Error fetching data from API:", err);
       } finally {
@@ -191,43 +192,45 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-marine-950 text-white font-sans antialiased selection:bg-marine-600 selection:text-white">
-      <Navbar
-        isAdminMode={isAdminMode}
-        setIsAdminMode={setIsAdminMode}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-      <main>
-        {isAdminMode ? (
-          <Suspense fallback={<SectionSkeleton />}>
-            <AdminDashboard
-              isLoggedIn={isLoggedIn}
-              onLogin={handleLogin}
-              onLogout={handleLogout}
+    <ToastProvider>
+      <div className="min-h-screen bg-marine-950 text-white font-sans antialiased selection:bg-marine-600 selection:text-white">
+        <Navbar
+          isAdminMode={isAdminMode}
+          setIsAdminMode={setIsAdminMode}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+        <main>
+          {isAdminMode ? (
+            <Suspense fallback={<SectionSkeleton />}>
+              <AdminDashboard
+                isLoggedIn={isLoggedIn}
+                onLogin={handleLogin}
+                onLogout={handleLogout}
+                gallery={gallery}
+                setGallery={setGallery}
+                news={news}
+                setNews={setNews}
+                events={events}
+                setEvents={setEvents}
+                instructors={instructors}
+                setInstructors={setInstructors}
+                graduates={graduates}
+                setGraduates={setGraduates}
+              />
+            </Suspense>
+          ) : (
+            <LandingPage
               gallery={gallery}
-              setGallery={setGallery}
               news={news}
-              setNews={setNews}
               events={events}
-              setEvents={setEvents}
               instructors={instructors}
-              setInstructors={setInstructors}
               graduates={graduates}
-              setGraduates={setGraduates}
+              setIsAdminMode={setIsAdminMode}
             />
-          </Suspense>
-        ) : (
-          <LandingPage
-            gallery={gallery}
-            news={news}
-            events={events}
-            instructors={instructors}
-            graduates={graduates}
-            setIsAdminMode={setIsAdminMode}
-          />
-        )}
-      </main>
-    </div>
+          )}
+        </main>
+      </div>
+    </ToastProvider>
   );
 }

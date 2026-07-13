@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import { uploadService } from "../services/upload.service.js";
 import { createError } from "../middleware/errorHandler.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const SERVER_ROOT = path.join(__dirname, "..", "..");
 
 function sanitizeFilename(filename: string): string {
   const basename = path.basename(filename);
@@ -16,7 +22,7 @@ function sanitizeFilename(filename: string): string {
 
 function getUploadPath(filename: string): string {
   const safeName = sanitizeFilename(filename);
-  return path.join(process.cwd(), "uploads", safeName);
+  return path.join(SERVER_ROOT, "uploads", safeName);
 }
 
 export async function uploadImage(

@@ -11,6 +11,21 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export async function refresh(req: Request, res: Response, next: NextFunction) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Token requerido" });
+      return;
+    }
+    const token = authHeader.split(" ")[1];
+    const result = await authService.refreshToken(token);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function me(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.user) {

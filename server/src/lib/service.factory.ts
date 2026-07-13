@@ -1,7 +1,22 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { createError } from "../middleware/errorHandler.js";
 import { uploadService } from "../services/upload.service.js";
 import { prisma } from "./prisma.js";
+
+type PrismaTxClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
+
+// Prisma model delegates have complex generic signatures that resist
+// clean abstraction. We use a minimal structural type for the 6 methods
+// we actually call. The `any` is confined to this single interface.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface CrudModelDelegate {
+  findMany: (...args: any[]) => Promise<unknown[]>;
+  findUnique: (...args: any[]) => Promise<unknown>;
+  create: (...args: any[]) => Promise<unknown>;
+  update: (...args: any[]) => Promise<unknown>;
+  delete: (...args: any[]) => Promise<unknown>;
+  count: (...args: any[]) => Promise<number>;
+}
 
 export interface CrudServiceConfig {
   modelName: string;
@@ -13,18 +28,23 @@ export interface CrudServiceConfig {
   maxLimit?: number;
 }
 
-function convertDates(data: Record<string, any>, dateFields: string[]): Record<string, any> {
+function convertDates<T extends Record<string, unknown>>(data: T, dateFields: string[]): T {
   const converted = { ...data };
   for (const field of dateFields) {
     if (converted[field] && typeof converted[field] === "string") {
-      converted[field] = new Date(converted[field]);
+      (converted as Record<string, unknown>)[field] = new Date(converted[field] as string);
     }
   }
   return converted;
 }
 
-export function createCrudService<T extends Record<string, unknown>>(
-  prismaModel: any,
+function getModelFromTx(tx: PrismaTxClient, modelName: string): CrudModelDelegate {
+  const camelCase = modelName.charAt(0).toLowerCase() + modelName.slice(1);
+  return (tx as unknown as Record<string, CrudModelDelegate>)[camelCase];
+}
+
+export function createCrudService(
+  prismaModel: CrudModelDelegate,
   config: CrudServiceConfig
 ) {
   const {
@@ -35,9 +55,6 @@ export function createCrudService<T extends Record<string, unknown>>(
     selectFields,
     maxLimit = 100,
   } = config;
-
-  // Convertir modelName PascalCase a camelCase para acceder a tx.gallery en lugar de tx.Gallery
-  const txModelName = config.modelName.charAt(0).toLowerCase() + config.modelName.slice(1);
 
   async function findAll(options?: { page?: number; limit?: number; select?: string[] }) {
     const page = options?.page || 1;
@@ -53,7 +70,7 @@ export function createCrudService<T extends Record<string, unknown>>(
         orderBy,
         skip,
         take: limit,
-        ...(selectObj ? { select: selectObj as any } : {}),
+        ...(selectObj ? { select: selectObj } : {}),
       }),
       prismaModel.count(),
     ]);
@@ -80,8 +97,8 @@ export function createCrudService<T extends Record<string, unknown>>(
     return item;
   }
 
-  async function create(data: Record<string, any>, file?: Express.Multer.File) {
-    let imageData: Record<string, any> = {};
+  async function create(data: Record<string, unknown>, file?: Express.Multer.File) {
+    const imageData: Record<string, unknown> = {};
 
     if (file && localImageField) {
       const uploadedFile = await uploadService.processUploadedFile(file);
@@ -97,20 +114,21 @@ export function createCrudService<T extends Record<string, unknown>>(
 
   async function update(
     id: string,
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     file?: Express.Multer.File
   ) {
     return prisma.$transaction(async (tx) => {
-      const txModel = (tx as any)[txModelName];
+      const txModel = getModelFromTx(tx, config.modelName);
       const existingItem = await txModel.findUnique({ where: { id } });
       if (!existingItem) {
         throw createError(notFoundMessage || `${config.modelName} not found`, 404);
       }
 
-      let imageData: Record<string, any> = {};
+      const imageData: Record<string, unknown> = {};
       if (file && localImageField) {
-        const existingImageUrl = (existingItem as any)[localImageField];
-        if (existingImageUrl) {
+        const existingRecord = existingItem as Record<string, unknown>;
+        const existingImageUrl = existingRecord[localImageField];
+        if (existingImageUrl && typeof existingImageUrl === "string") {
           await uploadService.deleteFileByUrl(existingImageUrl);
         }
         const uploadedFile = await uploadService.processUploadedFile(file);
@@ -128,14 +146,18 @@ export function createCrudService<T extends Record<string, unknown>>(
 
   async function remove(id: string) {
     return prisma.$transaction(async (tx) => {
-      const txModel = (tx as any)[txModelName];
+      const txModel = getModelFromTx(tx, config.modelName);
       const item = await txModel.findUnique({ where: { id } });
       if (!item) {
         throw createError(notFoundMessage || `${config.modelName} not found`, 404);
       }
 
-      if (localImageField && (item as any)[localImageField]) {
-        await uploadService.deleteFileByUrl((item as any)[localImageField]);
+      if (localImageField) {
+        const record = item as Record<string, unknown>;
+        const imageUrl = record[localImageField];
+        if (imageUrl && typeof imageUrl === "string") {
+          await uploadService.deleteFileByUrl(imageUrl);
+        }
       }
 
       return txModel.delete({ where: { id } });

@@ -1,3 +1,4 @@
+import React from 'react';
 import { GalleryItem, NewsItem, EventItem, Instructor, Graduate } from '../../types';
 
 export type AdminTab = 'gallery' | 'news' | 'events' | 'instructors' | 'graduates';
@@ -20,12 +21,10 @@ export interface LoginScreenProps {
 }
 
 export interface ImageUploaderProps {
-  mode: 'url' | 'upload';
-  onModeChange: (mode: 'url' | 'upload') => void;
-  url: string;
-  onUrlChange: (url: string) => void;
   onUploadComplete: (url: string) => void;
-  onUploadError: (error: string) => void;
+  onUploadError?: (error: string) => void;
+  onClear?: () => void;
   label: string;
-  uploadLabel: string;
+  uploadLabel?: string;
+  initialPreview?: string;
 }

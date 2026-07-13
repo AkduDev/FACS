@@ -103,6 +103,19 @@ export const api = {
       setToken(data.token);
       return data;
     },
+    async refreshToken(): Promise<void> {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const data = await request<{ token: string }>('/auth/refresh', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setToken(data.token);
+      } catch {
+        removeToken();
+      }
+    },
     logout() {
       removeToken();
     },
