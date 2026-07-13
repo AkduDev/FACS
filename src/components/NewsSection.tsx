@@ -18,6 +18,28 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
   const itemContent = (item: NewsItem) => lang === 'en' && item.contentEn ? item.contentEn : item.content;
   const itemCategory = (item: NewsItem) => lang === 'en' && item.categoryEn ? item.categoryEn : item.category;
 
+  const formatShortDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getUTCDate().toString().padStart(2, '0');
+    const monthNum = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear().toString();
+    const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = lang === 'es' ? monthsEs : monthsEn;
+    return `${day}, ${months[monthNum - 1]} ${year}`;
+  };
+
+  const formatFullDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getUTCDate();
+    const monthNum = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear();
+    const monthsEs = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = lang === 'es' ? monthsEs : monthsEn;
+    return `${day} de ${months[monthNum - 1]} de ${year}`;
+  };
+
   useEffect(() => {
     if (activeArticle !== null) {
       document.body.style.overflow = 'hidden';
@@ -114,7 +136,7 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
                     </span>
                     <span className="text-[9px] sm:text-xs text-marine-300 flex items-center space-x-1">
                       <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                      <span>{item.date}</span>
+                      <span>{formatShortDate(item.date)}</span>
                     </span>
                   </div>
 
@@ -204,7 +226,7 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
                     <div className="flex items-center space-x-3 sm:space-x-4 text-[10px] sm:text-xs text-marine-300 mb-2.5 sm:mb-4 shrink-0">
                       <span className="flex items-center space-x-1 sm:space-x-1.5">
                         <Calendar className="h-3.5 w-3.5 text-cyan-400" />
-                        <span>{lang === 'es' ? 'Publicado el' : 'Published on'} {activeArticle.date}</span>
+                        <span>{lang === 'es' ? 'Publicado el' : 'Published on'} {formatFullDate(activeArticle.date)}</span>
                       </span>
                       <span className="flex items-center space-x-1 sm:space-x-1.5">
                         <User className="h-3.5 w-3.5 text-cyan-400" />
