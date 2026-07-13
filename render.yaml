@@ -4,25 +4,23 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-      cd server
       npm install
-      npx prisma generate
-      npx prisma db push --skip-generate
-      cd ..
+      npx prisma generate --schema=server/prisma/schema.prisma
+      npx prisma db push --schema=server/prisma/schema.prisma --skip-generate
+      mkdir -p server/data
+      npx tsx server/prisma/seed.ts
       npm run build:server
     startCommand: node dist/server.mjs
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: "file:./data/fcas.db"
+        value: "file:../data/fcas.db"
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_PASSWORD
         value: "fcas2026"
       - key: PORT
         value: 3001
-      - key: CORS_ORIGIN
-        sync: false
     healthCheckPath: /api/health
     autoDeploy: true
