@@ -62,7 +62,13 @@ const allowedOrigins = process.env.CORS_ORIGIN
   : ["http://localhost:5173", "http://localhost:3000", "https://fcas-cuba.vercel.app"];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
