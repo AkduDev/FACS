@@ -31,17 +31,13 @@ export function useUndoableDelete<T extends { id: string }>({
     }, 5000);
 
     setPendingDelete({ item, timeout });
-    showToast(`${itemName} eliminado. ¿Deshacer?`, 'info');
+    showToast(`${itemName} eliminado`, 'info', () => {
+      clearTimeout(timeout);
+      onItemsChange(prev => [item, ...prev]);
+      setPendingDelete(null);
+      showToast('Eliminación deshecha', 'success');
+    });
   }, [onItemsChange, onDelete, itemName, showToast]);
-
-  const undoDelete = useCallback(() => {
-    if (!pendingDelete) return;
-
-    clearTimeout(pendingDelete.timeout);
-    onItemsChange(prev => [pendingDelete.item, ...prev]);
-    setPendingDelete(null);
-    showToast('Eliminación deshecha', 'success');
-  }, [pendingDelete, onItemsChange, showToast]);
 
   useEffect(() => {
     return () => {
@@ -51,5 +47,5 @@ export function useUndoableDelete<T extends { id: string }>({
     };
   }, [pendingDelete]);
 
-  return { handleDelete, undoDelete, hasPendingDelete: !!pendingDelete };
+  return { handleDelete, hasPendingDelete: !!pendingDelete };
 }

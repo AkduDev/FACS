@@ -63,14 +63,6 @@ function useSyncedState<T extends { id: string }>(
     });
   }, [syncFn, hasChanges, refreshFromServer]);
 
-  const loadData = useCallback((data: T[]) => {
-    isInitialLoadRef.current = true;
-    setState(data);
-    requestAnimationFrame(() => {
-      isInitialLoadRef.current = false;
-    });
-  }, []);
-
   return [state, setSynced];
 }
 

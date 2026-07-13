@@ -7,10 +7,11 @@ interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  onUndo?: () => void;
 }
 
 interface ToastContextType {
-  showToast: (message: string, type?: ToastType) => void;
+  showToast: (message: string, type?: ToastType, onUndo?: () => void) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -26,16 +27,16 @@ export function useToast() {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: ToastType = 'success') => {
+  const showToast = useCallback((message: string, type: ToastType = 'success', onUndo?: () => void) => {
     const id = Math.random().toString(36).substring(7);
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts(prev => [...prev, { id, message, type, onUndo }]);
   }, []);
 
   useEffect(() => {
     if (toasts.length > 0) {
       const timer = setTimeout(() => {
         setToasts(prev => prev.slice(1));
-      }, 3000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [toasts]);
@@ -67,6 +68,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           >
             {icons[toast.type]}
             <p className="text-sm text-white flex-1">{toast.message}</p>
+            {toast.onUndo && (
+              <button
+                onClick={() => {
+                  toast.onUndo!();
+                  removeToast(toast.id);
+                }}
+                className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 px-2 py-1 rounded-lg hover:bg-cyan-950 transition-colors"
+              >
+                Deshacer
+              </button>
+            )}
             <button
               onClick={() => removeToast(toast.id)}
               className="text-gray-400 hover:text-white transition-colors"

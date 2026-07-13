@@ -11,7 +11,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
     e.preventDefault();
     const success = await onLogin(password);
     if (!success) {
-      setLoginError('Contraseña incorrecta. Use: fcas2026');
+      setLoginError('Contraseña incorrecta');
     } else {
       setLoginError('');
       setPassword('');
@@ -54,9 +54,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-marine-950 text-white px-4 py-3 border border-marine-800 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-sans"
             />
-            <p className="text-[11px] text-marine-400 mt-2">
-              Clave predeterminada de prueba: <strong className="text-cyan-400">fcas2026</strong>
-            </p>
+
           </div>
 
           {loginError && (

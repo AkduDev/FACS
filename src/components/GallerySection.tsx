@@ -46,7 +46,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
 
   const filteredItems = selectedCategory === 'todos'
     ? items
-    : items.filter(item => item.category === selectedCategory || item.categoryEn?.toLowerCase().replace(/[^a-z]/g, '') === selectedCategory);
+    : items.filter(item => item.category === selectedCategory);
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -61,7 +61,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
   };
 
   return (
-    <section id="galeria" className="py-24 bg-gradient-to-b from-marine-950 to-marine-900 text-white relative overflow-hidden transition-colors duration-300">
+    <section id="galeria" className="py-24 scroll-mt-20 bg-gradient-to-b from-marine-950 to-marine-900 text-white relative overflow-hidden transition-colors duration-300">
       {/* Background decorations */}
       <div className="absolute top-1/4 right-0 w-96 h-96 bg-marine-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -123,8 +123,11 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group relative bg-marine-900/60 rounded-2xl overflow-hidden border border-marine-800 shadow-xl cursor-pointer hover:border-cyan-500/40 transition-all duration-300"
+                role="button"
+                tabIndex={0}
                 onClick={() => setActivePhoto(index)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActivePhoto(index); } }}
+                className="group relative bg-marine-900/60 rounded-2xl overflow-hidden border border-marine-800 shadow-xl cursor-pointer hover:border-cyan-500/40 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-marine-950"
               >
                 {/* Image Wrap */}
                 <div className="relative aspect-4/3 overflow-hidden">
@@ -176,7 +179,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
         {/* Lightbox / Immersive Carousel Modal */}
         <AnimatePresence>
           {activePhoto !== null && filteredItems[activePhoto] && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-24 bg-marine-950/98 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-24 bg-marine-950/98 backdrop-blur-md" role="dialog" aria-modal="true" aria-label={lang === 'es' ? 'Galería de fotos' : 'Photo gallery'}>
               
               {/* Prev Button */}
               <button

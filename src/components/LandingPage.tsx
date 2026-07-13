@@ -122,7 +122,7 @@ export default function LandingPage({
       </section>
 
       {/* 2. FEDERATION MISSION & INFO */}
-      <section className="py-24 bg-marine-950 text-white relative transition-colors duration-300">
+      <section id="mision" className="py-24 scroll-mt-20 bg-marine-950 text-white relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -209,7 +209,7 @@ export default function LandingPage({
       </section>
 
       {/* 3. FAMOUS SPOTS COMPONENT GRID */}
-      <section className="py-24 bg-gradient-to-b from-marine-950 via-marine-900 to-marine-950 text-white relative transition-colors duration-300">
+      <section id="destinos" className="py-24 scroll-mt-20 bg-gradient-to-b from-marine-950 via-marine-900 to-marine-950 text-white relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-16">

@@ -17,8 +17,10 @@ export function formatFullDate(dateString: string, lang: string): string {
   const day = date.getUTCDate();
   const monthNum = date.getUTCMonth() + 1;
   const year = date.getUTCFullYear();
-  const months = lang === 'es' ? MONTHS_FULL_ES : MONTHS_FULL_EN;
-  return `${day} de ${months[monthNum - 1]} de ${year}`;
+  if (lang === 'en') {
+    return `${MONTHS_FULL_EN[monthNum - 1]} ${day}, ${year}`;
+  }
+  return `${day} de ${MONTHS_FULL_ES[monthNum - 1]} de ${year}`;
 }
 
 export function formatCalendarDate(dateString: string) {

@@ -47,7 +47,7 @@ export default React.memo(function GraduatesSection({ graduates }: GraduatesSect
   };
 
   return (
-    <section id="graduados" className="py-24 bg-gradient-to-b from-marine-900 to-marine-950 text-white relative transition-colors duration-300">
+    <section id="graduados" className="py-24 scroll-mt-20 bg-gradient-to-b from-marine-900 to-marine-950 text-white relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
