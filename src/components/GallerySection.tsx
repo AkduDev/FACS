@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GalleryItem } from '../types';
 import { Camera, Eye, X, Calendar, ArrowLeft, ArrowRight, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
