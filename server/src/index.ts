@@ -58,8 +58,8 @@ app.use("/api/auth", authLimiter);
 
 // CORS configuration
 const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",")
-  : ["http://localhost:5173", "http://localhost:3000"];
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : ["http://localhost:5173", "http://localhost:3000", "https://fcas-cuba.vercel.app"];
 
 app.use(cors({
   origin: allowedOrigins,
