@@ -180,7 +180,7 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
               : 'If you belong to a national diving center or are a federation instructor and want to launch a monitoring campaign, please contact the national directorate.'}
           </p>
           <a
-            href="mailto:fcas-cuba@fcas.cu"
+            href="mailto:fcas2024@gmail.com"
             className="inline-flex items-center justify-center bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm px-6 py-2.5 rounded-xl tracking-wide transition-all"
           >
             {lang === 'es' ? 'Contactar Comité Nacional' : 'Contact National Committee'}

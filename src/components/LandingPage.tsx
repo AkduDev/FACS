@@ -347,11 +347,11 @@ export default function LandingPage({
                 </li>
                 <li className="flex items-center space-x-2.5">
                   <Mail className="h-4 w-4 text-cyan-400 shrink-0" />
-                  <span>contacto@fcas.cu</span>
+                  <span>fcas2024@gmail.com</span>
                 </li>
                 <li className="flex items-center space-x-2.5">
                   <Phone className="h-4 w-4 text-cyan-400 shrink-0" />
-                  <span>+53 7 832-4589</span>
+                  <span>+53 52864139</span>
                 </li>
               </ul>
             </div>

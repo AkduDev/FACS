@@ -18,3 +18,4 @@ DOCUMENTACION.md
 *.db-journal
 database.json
 server/data/
+.vercel
