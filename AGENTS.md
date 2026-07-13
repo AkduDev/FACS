@@ -165,3 +165,57 @@ FACS/
 8. **Tests** — Agregar tests unitarios para servicios del backend y componentes críticos del frontend.
 9. **PWA** — Service worker para funcionamiento offline básico.
 10. **i18n** — Preparar estructura para soporte multi-idioma (español/inglés).
+
+---
+
+## Deployment
+
+### Arquitectura de Producción
+
+El proyecto se despliega en **dos servicios separados**:
+
+| Servicio | Plataforma | Contenido |
+|---|---|---|
+| **Frontend** | Vercel | SPA estática (Vite build) |
+| **Backend** | Render / Railway / Fly.io | Express + Prisma + SQLite + uploads |
+
+### Frontend en Vercel
+
+1. Conectar repo de GitHub a Vercel
+2. Configurar variable de entorno:
+   - `VITE_API_URL` = URL del backend (ej: `https://fcas-api.onrender.com`)
+3. Vercel detecta automáticamente `vercel.json` con:
+   - `framework: "vite"` y `buildCommand: "vite build"`
+   - SPA fallback para rutas internas
+   - Cache headers para `/uploads`
+
+**Importante**: El build en Vercel solo ejecuta `vite build` (no `build:server`).
+
+### Backend (ejemplo: Render)
+
+1. Crear un "Web Service" en Render
+2. Configurar:
+   - **Build Command**: `npm install && npx prisma generate && npx prisma db push`
+   - **Start Command**: `node dist/server.mjs`
+   - **Environment Variables**:
+     - `DATABASE_URL` = `file:./data/fcas.db`
+     - `JWT_SECRET` = `<secret>`
+     - `PORT` = `3001` (o el que Render asigne)
+     - `CORS_ORIGIN` = URL de Vercel (ej: `https://fcas-cuba.vercel.app`)
+3. Pre-run command para build del server: `npm run build:server`
+
+### Variables de Entorno
+
+| Variable | Frontend (Vercel) | Backend (Render) |
+|---|---|---|
+| `VITE_API_URL` | URL del backend | — |
+| `DATABASE_URL` | — | `file:./data/fcas.db` |
+| `JWT_SECRET` | — | `<string secreto>` |
+| `CORS_ORIGIN` | — | URL del frontend |
+| `PORT` | — | `3001` |
+
+### Notas Importantes
+
+- **SQLite en serverless**: Render tiene disco persistente, así que `fcas.db` sobrevive deploys. En Vercel NO funcionaría (filesystem efímero).
+- **Uploads**: Las imágenes se guardan en disco del backend. Para persistencia real en producción, considerar migrar a S3/R2.
+- **Prisma + SQLite**: En el build del server, `prisma generate` corre en `postinstall` automáticamente.
