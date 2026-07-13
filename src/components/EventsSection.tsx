@@ -5,12 +5,14 @@ import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
 import { formatCalendarDate, formatFullDate } from '../utils/dateUtils';
 import DetailModal from './DetailModal';
+import { CardSkeleton } from './Skeleton';
 
 interface EventsSectionProps {
   events: EventItem[];
+  loading?: boolean;
 }
 
-export default React.memo(function EventsSection({ events }: EventsSectionProps) {
+export default React.memo(function EventsSection({ events, loading }: EventsSectionProps) {
   const [activeEvent, setActiveEvent] = useState<EventItem | null>(null);
   const { lang } = useThemeLang();
 
@@ -56,7 +58,11 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
           </p>
         </div>
 
-        {events.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
+            {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+          </div>
+        ) : events.length === 0 ? (
           <div className="text-center py-20 bg-marine-900/40 border border-marine-800 rounded-3xl">
             <p className="text-marine-300 font-medium">
               {lang === 'es' ? 'No hay eventos oficiales programados por ahora.' : 'No official events scheduled for now.'}

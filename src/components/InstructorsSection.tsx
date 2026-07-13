@@ -5,12 +5,14 @@ import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
 import LazyImage from './LazyImage';
 import DetailModal from './DetailModal';
+import { GallerySkeleton } from './Skeleton';
 
 interface InstructorsSectionProps {
   instructors: Instructor[];
+  loading?: boolean;
 }
 
-export default React.memo(function InstructorsSection({ instructors }: InstructorsSectionProps) {
+export default React.memo(function InstructorsSection({ instructors, loading }: InstructorsSectionProps) {
   const [activeInstructor, setActiveInstructor] = useState<Instructor | null>(null);
   const { lang } = useThemeLang();
 
@@ -37,7 +39,9 @@ export default React.memo(function InstructorsSection({ instructors }: Instructo
           </p>
         </div>
 
-        {instructors.length === 0 ? (
+        {loading ? (
+          <GallerySkeleton />
+        ) : instructors.length === 0 ? (
           <div className="text-center py-20 bg-marine-900/40 border border-marine-800 rounded-3xl">
             <User className="h-12 w-12 text-marine-400 mx-auto mb-3" />
             <p className="text-marine-300 font-medium">

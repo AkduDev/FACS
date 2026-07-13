@@ -6,12 +6,14 @@ import { getImageUrl } from '../utils/imageUtils';
 import { formatShortDate, formatFullDate } from '../utils/dateUtils';
 import LazyImage from './LazyImage';
 import DetailModal from './DetailModal';
+import { GallerySkeleton } from './Skeleton';
 
 interface NewsSectionProps {
   news: NewsItem[];
+  loading?: boolean;
 }
 
-export default React.memo(function NewsSection({ news }: NewsSectionProps) {
+export default React.memo(function NewsSection({ news, loading }: NewsSectionProps) {
   const [activeArticle, setActiveArticle] = useState<NewsItem | null>(null);
   const { lang, t } = useThemeLang();
 
@@ -61,7 +63,9 @@ export default React.memo(function NewsSection({ news }: NewsSectionProps) {
           </div>
         </div>
 
-        {news.length === 0 ? (
+        {loading ? (
+          <GallerySkeleton />
+        ) : news.length === 0 ? (
           <div className="text-center py-20 bg-marine-900/40 border border-marine-800 rounded-3xl">
             <AlertCircle className="h-12 w-12 text-marine-400 mx-auto mb-3" />
             <p className="text-marine-300 font-medium text-lg">

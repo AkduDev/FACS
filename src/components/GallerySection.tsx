@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GalleryItem } from '../types';
 import { Camera, Eye, X, Calendar, ArrowLeft, ArrowRight, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -6,12 +6,14 @@ import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
 import { formatShortDate, formatFullDate } from '../utils/dateUtils';
 import LazyImage from './LazyImage';
+import { GallerySkeleton } from './Skeleton';
 
 interface GallerySectionProps {
   items: GalleryItem[];
+  loading?: boolean;
 }
 
-export default React.memo(function GallerySection({ items }: GallerySectionProps) {
+export default React.memo(function GallerySection({ items, loading }: GallerySectionProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
   const [activePhoto, setActivePhoto] = useState<number | null>(null);
   const { lang } = useThemeLang();
@@ -95,7 +97,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                 setSelectedCategory(category.id);
                 setActivePhoto(null);
               }}
-              className={`px-5 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 cursor-pointer ${
+              className={`px-5 py-3 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 cursor-pointer min-h-[44px] ${
                 selectedCategory === category.id
                   ? 'bg-gradient-to-r from-cyan-500 to-marine-500 text-white shadow-lg shadow-cyan-500/20 scale-105 border border-cyan-400/30'
                   : 'bg-marine-800/40 text-marine-200 hover:text-white hover:bg-marine-700/50 border border-marine-800'
@@ -107,7 +109,9 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
         </div>
 
         {/* Gallery Grid */}
-        {filteredItems.length === 0 ? (
+        {loading ? (
+          <GallerySkeleton />
+        ) : filteredItems.length === 0 ? (
           <div className="text-center py-20 bg-marine-900/40 border border-marine-800 rounded-3xl">
             <Compass className="h-12 w-12 text-marine-400 mx-auto mb-4 animate-spin" />
             <p className="text-marine-300 font-medium text-lg">
@@ -184,7 +188,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
               {/* Prev Button */}
               <button
                 onClick={handlePrev}
-                className="absolute left-4 sm:left-8 p-2.5 sm:p-3.5 rounded-full bg-marine-800/80 hover:bg-cyan-600 text-white transition-colors cursor-pointer z-10"
+                className="absolute left-4 sm:left-8 p-3.5 sm:p-4 rounded-full bg-marine-800/80 hover:bg-cyan-600 text-white transition-colors cursor-pointer z-10 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title={lang === 'es' ? 'Anterior' : 'Previous'}
               >
                 <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -193,7 +197,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
               {/* Next Button */}
               <button
                 onClick={handleNext}
-                className="absolute right-4 sm:right-8 p-2.5 sm:p-3.5 rounded-full bg-marine-800/80 hover:bg-cyan-600 text-white transition-colors cursor-pointer z-10"
+                className="absolute right-4 sm:right-8 p-3.5 sm:p-4 rounded-full bg-marine-800/80 hover:bg-cyan-600 text-white transition-colors cursor-pointer z-10 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title={lang === 'es' ? 'Siguiente' : 'Next'}
               >
                 <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />

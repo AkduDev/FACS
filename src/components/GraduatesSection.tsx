@@ -2,12 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { Graduate } from '../types';
 import { Search, UserCheck, ShieldAlert, Award, FileSpreadsheet, BadgeCheck, Filter } from 'lucide-react';
 import { useThemeLang } from '../ThemeLangContext';
+import { TableSkeleton } from './Skeleton';
 
 interface GraduatesSectionProps {
   graduates: Graduate[];
+  loading?: boolean;
 }
 
-export default React.memo(function GraduatesSection({ graduates }: GraduatesSectionProps) {
+export default React.memo(function GraduatesSection({ graduates, loading }: GraduatesSectionProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const { lang, t } = useThemeLang();
@@ -143,7 +145,9 @@ export default React.memo(function GraduatesSection({ graduates }: GraduatesSect
 
         {/* Directory Table View */}
         <div className="bg-marine-900/30 backdrop-blur-md rounded-3xl border border-marine-800/80 shadow-2xl overflow-hidden max-w-5xl mx-auto">
-          {filteredGraduates.length === 0 ? (
+          {loading ? (
+            <div className="p-6"><TableSkeleton /></div>
+          ) : filteredGraduates.length === 0 ? (
             <div className="text-center py-24 px-6">
               <ShieldAlert className="h-14 w-14 text-amber-500 mx-auto mb-4" />
               <h3 className="text-xl font-display font-bold text-white">

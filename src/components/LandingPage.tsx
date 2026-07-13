@@ -17,6 +17,7 @@ interface LandingPageProps {
   instructors: Instructor[];
   graduates: Graduate[];
   setIsAdminMode: (mode: boolean) => void;
+  loading?: { gallery: boolean; news: boolean; events: boolean; instructors: boolean; graduates: boolean };
 }
 
 export default function LandingPage({
@@ -25,7 +26,8 @@ export default function LandingPage({
   events,
   instructors,
   graduates,
-  setIsAdminMode
+  setIsAdminMode,
+  loading,
 }: LandingPageProps) {
   const { lang, t } = useThemeLang();
 
@@ -290,11 +292,11 @@ export default function LandingPage({
       </section>
 
       {/* 4. DYNAMIC SUBSECTIONS CONNECTED TO STATE */}
-      <GallerySection items={gallery} />
-      <NewsSection news={news} />
-      <EventsSection events={events} />
-      <InstructorsSection instructors={instructors} />
-      <GraduatesSection graduates={graduates} />
+      <GallerySection items={gallery} loading={loading?.gallery} />
+      <NewsSection news={news} loading={loading?.news} />
+      <EventsSection events={events} loading={loading?.events} />
+      <InstructorsSection instructors={instructors} loading={loading?.instructors} />
+      <GraduatesSection graduates={graduates} loading={loading?.graduates} />
 
       {/* 5. FOOTER COMPONENT */}
       <footer className="bg-marine-950 text-white pt-20 pb-10 border-t border-marine-800 transition-colors duration-300">

@@ -23,8 +23,9 @@ function useSyncedState<T extends { id: string }>(
   syncFn: (action: 'add' | 'update' | 'delete', item?: T, id?: string, file?: File) => Promise<void>,
   fetchFn: () => Promise<T[]>,
   hasChanges?: (prev: T, next: T) => boolean
-): [T[], SyncableSetter<T>] {
+): [T[], SyncableSetter<T>, boolean] {
   const [state, setState] = useState<T[]>(initialState);
+  const [isLoading, setIsLoading] = useState(true);
   const isInitialLoadRef = useRef(true);
   const isSyncingRef = useRef(false);
 
@@ -34,6 +35,8 @@ function useSyncedState<T extends { id: string }>(
       setState(data);
     } catch (err) {
       console.error("Error refreshing from server:", err);
+    } finally {
+      setIsLoading(false);
     }
   }, [fetchFn]);
 
@@ -63,7 +66,7 @@ function useSyncedState<T extends { id: string }>(
     });
   }, [syncFn, hasChanges, refreshFromServer]);
 
-  return [state, setSynced];
+  return [state, setSynced, isLoading];
 }
 
 export default function App() {
@@ -96,7 +99,7 @@ export default function App() {
     return res.data;
   }, []);
 
-  const [gallery, setGallery] = useSyncedState<GalleryItem>(
+  const [gallery, setGallery, loadingGallery] = useSyncedState<GalleryItem>(
     [],
     useCallback(async (action, item, id, file) => {
       if (action === 'add' && item) await api.gallery.create(item, file);
@@ -106,7 +109,7 @@ export default function App() {
     fetchGallery
   );
 
-  const [news, setNews] = useSyncedState<NewsItem>(
+  const [news, setNews, loadingNews] = useSyncedState<NewsItem>(
     [],
     useCallback(async (action, item, id, file) => {
       if (action === 'add' && item) await api.news.create(item, file);
@@ -116,7 +119,7 @@ export default function App() {
     fetchNews
   );
 
-  const [events, setEvents] = useSyncedState<EventItem>(
+  const [events, setEvents, loadingEvents] = useSyncedState<EventItem>(
     [],
     useCallback(async (action, item, id, file) => {
       if (action === 'add' && item) await api.events.create(item, file);
@@ -126,7 +129,7 @@ export default function App() {
     fetchEvents
   );
 
-  const [instructors, setInstructors] = useSyncedState<Instructor>(
+  const [instructors, setInstructors, loadingInstructors] = useSyncedState<Instructor>(
     [],
     useCallback(async (action, item, id, file) => {
       if (action === 'add' && item) await api.instructors.create(item, file);
@@ -136,7 +139,7 @@ export default function App() {
     fetchInstructors
   );
 
-  const [graduates, setGraduates] = useSyncedState<Graduate>(
+  const [graduates, setGraduates, loadingGraduates] = useSyncedState<Graduate>(
     [],
     useCallback(async (action, item, id) => {
       if (action === 'add' && item) await api.graduates.create(item);
@@ -263,6 +266,7 @@ export default function App() {
               instructors={instructors}
               graduates={graduates}
               setIsAdminMode={setIsAdminMode}
+              loading={{ gallery: loadingGallery, news: loadingNews, events: loadingEvents, instructors: loadingInstructors, graduates: loadingGraduates }}
             />
           )}
         </main>
