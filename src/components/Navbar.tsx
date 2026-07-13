@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Anchor, ShieldAlert, Compass, Menu, X, Landmark, UserCheck, Sun, Moon } from 'lucide-react';
 import fcasLogo from '../assets/images/fcas_logo_v2_1783530295569.jpg';
 import { motion, AnimatePresence } from 'motion/react';
@@ -11,18 +11,18 @@ interface NavbarProps {
   onLogout: () => void;
 }
 
-export default function Navbar({ isAdminMode, setIsAdminMode, isLoggedIn, onLogout }: NavbarProps) {
+export default React.memo(function Navbar({ isAdminMode, setIsAdminMode, isLoggedIn, onLogout }: NavbarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const { theme, toggleTheme, lang, setLang, t } = useThemeLang();
 
-  const navLinks = [
+  const navLinks = useMemo(() => [
     { name: t.navHome, href: '#inicio' },
     { name: t.navGallery, href: '#galeria' },
     { name: t.navNews, href: '#noticias' },
     { name: t.navEvents, href: '#eventos' },
     { name: t.navInstructors, href: '#instructores' },
     { name: t.navGraduates, href: '#graduados' },
-  ];
+  ], [t]);
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -256,4 +256,4 @@ export default function Navbar({ isAdminMode, setIsAdminMode, isLoggedIn, onLogo
       </AnimatePresence>
     </nav>
   );
-}
+});

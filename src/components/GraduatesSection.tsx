@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Graduate } from '../types';
 import { Search, UserCheck, ShieldAlert, Award, FileSpreadsheet, BadgeCheck, Filter } from 'lucide-react';
 import { useThemeLang } from '../ThemeLangContext';
@@ -12,10 +12,10 @@ export default React.memo(function GraduatesSection({ graduates }: GraduatesSect
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const { lang, t } = useThemeLang();
 
-  // Stats calculation
+  // Stats calculation (memoized)
   const totalCount = graduates.length;
-  const divemastersCount = graduates.filter(g => g.level === 'divemaster' || g.courseName.toLowerCase().includes('divemaster')).length;
-  const instructorsCount = graduates.filter(g => g.level === 'instructor' || g.courseName.toLowerCase().includes('instructor')).length;
+  const divemastersCount = useMemo(() => graduates.filter(g => g.level === 'divemaster' || g.courseName.toLowerCase().includes('divemaster')).length, [graduates]);
+  const instructorsCount = useMemo(() => graduates.filter(g => g.level === 'instructor' || g.courseName.toLowerCase().includes('instructor')).length, [graduates]);
 
   const filteredGraduates = graduates.filter((grad) => {
     const matchesSearch =

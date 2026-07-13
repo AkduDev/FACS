@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useUndoableDelete } from '../UndoableDelete';
 import { useToast } from '../Toast';
 
@@ -19,6 +19,11 @@ export function useCrudTab<T extends { id: string }>(
   const [filteredItems, setFilteredItems] = useState<T[]>(items);
   const [form, setForm] = useState<Omit<T, 'id'>>(config.emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Sync filteredItems when items change from parent (e.g. polling)
+  useEffect(() => {
+    setFilteredItems(items);
+  }, [items]);
 
   const { handleDelete } = useUndoableDelete({
     items,

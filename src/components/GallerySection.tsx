@@ -4,6 +4,7 @@ import { Camera, Eye, X, Calendar, ArrowLeft, ArrowRight, Compass } from 'lucide
 import { motion, AnimatePresence } from 'motion/react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
+import { formatShortDate, formatFullDate } from '../utils/dateUtils';
 import LazyImage from './LazyImage';
 
 interface GallerySectionProps {
@@ -19,28 +20,6 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
   const itemTitle = (item: GalleryItem) => lang === 'en' && item.titleEn ? item.titleEn : item.title;
   const itemDesc = (item: GalleryItem) => lang === 'en' && item.descriptionEn ? item.descriptionEn : item.description;
   const itemCategory = (item: GalleryItem) => lang === 'en' && item.categoryEn ? item.categoryEn : item.category;
-
-  const formatShortDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getUTCDate().toString().padStart(2, '0');
-    const monthNum = date.getUTCMonth() + 1;
-    const year = date.getUTCFullYear().toString();
-    const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const months = lang === 'es' ? monthsEs : monthsEn;
-    return `${day}, ${months[monthNum - 1]} ${year}`;
-  };
-
-  const formatFullDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getUTCDate();
-    const monthNum = date.getUTCMonth() + 1;
-    const year = date.getUTCFullYear();
-    const monthsEs = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const months = lang === 'es' ? monthsEs : monthsEn;
-    return `${day} de ${months[monthNum - 1]} de ${year}`;
-  };
 
   useEffect(() => {
     if (activePhoto !== null) {
@@ -182,7 +161,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                   <div className="mt-2.5 sm:mt-4 pt-2.5 sm:pt-4 border-t border-marine-800/60 flex items-center justify-between text-[10px] sm:text-xs text-marine-400">
                     <span className="flex items-center space-x-1 sm:space-x-1.5">
                       <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                      <span>{formatShortDate(item.date)}</span>
+                      <span>{formatShortDate(item.date, lang)}</span>
                     </span>
                     <span className="text-cyan-400 font-medium group-hover:underline">
                       {lang === 'es' ? 'Ampliar →' : 'Zoom →'}
@@ -270,7 +249,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
                       <span className="text-[10px] sm:text-xs text-marine-400 flex items-center space-x-1 sm:space-x-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>
-                          {lang === 'es' ? 'Registrado el' : 'Registered on'} {formatFullDate(filteredItems[activePhoto].date)}
+                          {lang === 'es' ? 'Registrado el' : 'Registered on'} {formatFullDate(filteredItems[activePhoto].date, lang)}
                         </span>
                       </span>
                     </div>

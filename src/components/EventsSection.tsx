@@ -4,6 +4,7 @@ import { MapPin, Compass, Calendar, ArrowLeft, X, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useThemeLang } from '../ThemeLangContext';
 import { getImageUrl } from '../utils/imageUtils';
+import { formatCalendarDate, formatFullDate } from '../utils/dateUtils';
 
 interface EventsSectionProps {
   events: EventItem[];
@@ -57,32 +58,6 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getUTCDate().toString().padStart(2, '0');
-    const monthNum = date.getUTCMonth() + 1;
-    const year = date.getUTCFullYear().toString();
-    const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const months = lang === 'es' ? monthsEs : monthsEn;
-    return {
-      day,
-      month: months[monthNum - 1] || (lang === 'es' ? 'Mes' : 'Month'),
-      year
-    };
-  };
-
-  const formatFullDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getUTCDate();
-    const monthNum = date.getUTCMonth() + 1;
-    const year = date.getUTCFullYear();
-    const monthsEs = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const months = lang === 'es' ? monthsEs : monthsEn;
-    return `${day} de ${months[monthNum - 1]} de ${year}`;
-  };
-
   return (
     <section id="eventos" className="py-24 bg-gradient-to-b from-marine-900 to-marine-950 text-white relative overflow-hidden transition-colors duration-300">
       {/* Absolute graphic layout lines */}
@@ -118,7 +93,7 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 relative">
             {events.map((event) => {
-              const { day, month, year } = formatDate(event.date);
+              const { day, month, year } = formatCalendarDate(event.date);
               return (
                 <div
                   key={event.id}
@@ -127,7 +102,7 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                   {/* Calendar Widget */}
                   <div className="flex sm:flex-col items-center sm:justify-center justify-center bg-gradient-to-br from-cyan-600 to-marine-700 rounded-2xl px-4 py-3 sm:p-4 w-full sm:w-auto sm:min-w-28 text-center shrink-0 shadow-md overflow-hidden">
                     <span className="text-sm sm:text-base font-display font-bold text-white whitespace-nowrap">
-                      {day}, {month} {year}
+                      {day}, {month(lang)} {year}
                     </span>
                   </div>
 
@@ -253,7 +228,7 @@ export default React.memo(function EventsSection({ events }: EventsSectionProps)
                   <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-marine-300 mb-3 sm:mb-5 shrink-0">
                     <span className="flex items-center space-x-1.5">
                       <Calendar className="h-3.5 w-3.5 text-cyan-400" />
-                      <span>{formatFullDate(activeEvent.date)}</span>
+                      <span>{formatFullDate(activeEvent.date, lang)}</span>
                     </span>
                     <span className="flex items-center space-x-1.5">
                       <MapPin className="h-3.5 w-3.5 text-cyan-400" />
