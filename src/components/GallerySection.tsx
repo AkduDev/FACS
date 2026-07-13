@@ -175,7 +175,7 @@ export default React.memo(function GallerySection({ items }: GallerySectionProps
         {/* Lightbox / Immersive Carousel Modal */}
         <AnimatePresence>
           {activePhoto !== null && filteredItems[activePhoto] && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-marine-950/98 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-24 bg-marine-950/98 backdrop-blur-md">
               
               {/* Prev Button */}
               <button
