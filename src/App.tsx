@@ -25,7 +25,7 @@ function useSyncedState<T extends { id: string }>(
   hasChanges?: (prev: T, next: T) => boolean
 ): [T[], SyncableSetter<T>, boolean] {
   const [state, setState] = useState<T[]>(initialState);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const isInitialLoadRef = useRef(true);
   const isSyncingRef = useRef(false);
 
@@ -35,8 +35,6 @@ function useSyncedState<T extends { id: string }>(
       setState(data);
     } catch (err) {
       console.error("Error refreshing from server:", err);
-    } finally {
-      setIsLoading(false);
     }
   }, [fetchFn]);
 
