@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-      npm install
+      npm install --include=dev
       npx prisma generate --schema=server/prisma/schema.prisma
       npx prisma db push --schema=server/prisma/schema.prisma --skip-generate
       mkdir -p server/data
@@ -12,8 +12,6 @@ services:
       npm run build:server
     startCommand: node dist/server.mjs
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
         value: "file:../data/fcas.db"
       - key: JWT_SECRET
